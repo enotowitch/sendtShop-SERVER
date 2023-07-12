@@ -11,11 +11,7 @@ async function signToken(email) {
 	return jwt.sign(email, process.env.JWT)
 }
 
-// !! TODO rename
-export const addUser = async (req, res) => {
-
-	const { email } = req.body
-
+async function regAndReturnUser(email, req) {
 	// check if user exists
 	const userExist = (await UserModel.find({ email })).length
 
@@ -28,8 +24,16 @@ export const addUser = async (req, res) => {
 		user = await findUserByEmail(email)
 	}
 
-	// make token
-	const token = jwt.sign(email, process.env.JWT)
+	return user
+}
+
+// !! TODO rename
+export const addUser = async (req, res) => {
+
+	const { email } = req.body
+
+	const user = await regAndReturnUser(email, req)
+	const token = await signToken(email) // make token
 
 	res.json({ ok: true, token, user })
 }
@@ -38,6 +42,7 @@ export const addUser = async (req, res) => {
 export const autoAuth = async (req, res) => {
 
 	const { token } = req.body
+
 	const email = jwt.verify(token, process.env.JWT)
 	const user = await findUserByEmail(email)
 
@@ -48,9 +53,12 @@ export const autoAuth = async (req, res) => {
 export const loginSendEmail = async (req, res) => {
 
 	const { email } = req.body
-	const token = await signToken(email)
-	console.log(token)
 
+	// register user, BUT NOT sending userInfo to client, as user have to click "verify" in email
+	await regAndReturnUser(email, req)
+
+	// send token to email: * user gets email, clicks "verify", token written to localStorage, reload page (user authed by autoAuth)
+	const token = await signToken(email)
 	mailer(email, "Confirm Email", `
 	<a href="${process.env.CLIENT_URL}/verifyToken/${token}">Click here to verify email</a>
 	`)
