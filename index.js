@@ -17,7 +17,7 @@ mongoose.connect(`mongodb+srv://enotowitch:qwerty123@cluster0.9tnodta.mongodb.ne
 // !! ROUTES
 // ! auth
 import * as UserController from "./controllers/UserController.js"
-app.post("/addUser", UserController.addUser)
+app.post("/loginGoogle", UserController.loginGoogle)
 app.post("/autoAuth", UserController.autoAuth)
 app.post("/loginSendEmail", UserController.loginSendEmail)
 // ? auth

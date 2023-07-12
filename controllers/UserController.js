@@ -2,6 +2,8 @@ import UserModel from "../models/User.js"
 import jwt from "jsonwebtoken"
 import mailer from "../utils/mailer.js"
 
+// ! HELPER FUNCTIONS
+
 async function findUserByEmail(email) {
 	const user = await UserModel.find({ email })
 	return user[0]
@@ -27,8 +29,9 @@ async function regAndReturnUser(email, req) {
 	return user
 }
 
-// !! TODO rename
-export const addUser = async (req, res) => {
+// ! MAIN FUNCTIONS
+
+export const loginGoogle = async (req, res) => {
 
 	const { email } = req.body
 
