@@ -5,8 +5,19 @@ import mailer from "../utils/mailer.js"
 // ! HELPER FUNCTIONS
 
 async function findUserByEmail(email) {
-	const user = await UserModel.find({ email })
-	return user[0]
+	let user = await UserModel.find({ email })
+	user = user[0]
+
+	// check if user isAdmin
+	let isAdmin
+	if (email === process.env.ADMIN_EMAIL || email === process.env.ADMIN_EMAIL2) {
+		isAdmin = true
+	} else {
+		isAdmin = false
+	}
+	user.isAdmin = isAdmin
+
+	return user
 }
 
 async function signToken(email) {
@@ -31,6 +42,7 @@ async function regAndReturnUser(email, req) {
 
 // ! MAIN FUNCTIONS
 
+// ! loginGoogle
 export const loginGoogle = async (req, res) => {
 
 	const { email } = req.body
