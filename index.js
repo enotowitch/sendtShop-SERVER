@@ -1,4 +1,4 @@
-// npm i express dotenv mongoose cors nodemon jsonwebtoken nodemailer
+// npm i express dotenv mongoose cors nodemon jsonwebtoken nodemailer multer
 
 import express from 'express'
 import dotenv from 'dotenv'
@@ -26,3 +26,32 @@ app.post("/loginSendEmail", UserController.loginSendEmail)
 import * as AddController from "./controllers/AddController.js"
 app.post("/add", AddController.add)
 // ? add
+// ?? ROUTES
+
+// ! MULTER
+import multer from 'multer'
+import fs, { existsSync } from "fs"
+
+const storage = multer.diskStorage({
+	"destination": (req, file, cb) => {
+		if (!existsSync("upload")) {
+			fs.mkdirSync("upload")
+		}
+		cb(null, "upload")
+	},
+	"filename": (req, file, cb) => {
+		cb(null, file.originalname)
+	}
+})
+
+const upload = multer({ storage })
+
+app.post("/upload", upload.single("image"), (req, res) => {
+	res.json({
+		url: `${process.env.SERVER_URL}/upload/${req.file.originalname}`
+	}
+	)
+})
+
+app.use("/upload", express.static("upload"))
+// ? MULTER
