@@ -26,6 +26,7 @@ app.post("/loginSendEmail", UserController.loginSendEmail)
 import * as PostController from "./controllers/PostController.js"
 app.post("/addPost", PostController.addPost)
 app.post("/getAllPosts", PostController.getAllPosts)
+app.post("/deletePost", PostController.deletePost)
 // ? posts
 // ?? ROUTES
 

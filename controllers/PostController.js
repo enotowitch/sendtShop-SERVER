@@ -25,3 +25,14 @@ export const getAllPosts = async (req, res) => {
 
 	res.json(all)
 }
+
+// ! deletePost
+export const deletePost = async (req, res) => {
+
+	// type=product/article/comment/review...
+	const { type, id } = req.body
+
+	await eval(type).findOneAndDelete({ _id: id })
+
+	res.json({ ok: true })
+}
