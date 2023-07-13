@@ -22,10 +22,11 @@ app.post("/autoAuth", UserController.autoAuth)
 app.post("/loginSendEmail", UserController.loginSendEmail)
 // ? auth
 
-// ! add
-import * as AddController from "./controllers/AddController.js"
-app.post("/add", AddController.add)
-// ? add
+// ! posts
+import * as PostController from "./controllers/PostController.js"
+app.post("/addPost", PostController.addPost)
+app.post("/getAllPosts", PostController.getAllPosts)
+// ? posts
 // ?? ROUTES
 
 // ! MULTER
