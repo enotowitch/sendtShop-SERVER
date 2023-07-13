@@ -21,3 +21,8 @@ app.post("/loginGoogle", UserController.loginGoogle)
 app.post("/autoAuth", UserController.autoAuth)
 app.post("/loginSendEmail", UserController.loginSendEmail)
 // ? auth
+
+// ! add
+import * as AddController from "./controllers/AddController.js"
+app.post("/add", AddController.add)
+// ? add
