@@ -27,6 +27,8 @@ import * as PostController from "./controllers/PostController.js"
 app.post("/addPost", PostController.addPost)
 app.post("/getAllPosts", PostController.getAllPosts)
 app.post("/deletePost", PostController.deletePost)
+app.post("/fullPost", PostController.fullPost)
+app.post("/editPost", PostController.editPost)
 // ? posts
 // ?? ROUTES
 
