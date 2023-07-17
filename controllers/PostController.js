@@ -1,5 +1,6 @@
 // * for eval
 import product from "../models/Product.js"
+import article from "../models/Product.js"
 
 // ! addPost
 export const addPost = async (req, res) => {
