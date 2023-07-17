@@ -1,6 +1,7 @@
 // * for eval
 import product from "../models/Product.js"
-import article from "../models/Product.js"
+import article from "../models/Article.js" // !!
+import user from "../models/User.js"
 
 // ! addPost
 export const addPost = async (req, res) => {
@@ -31,9 +32,9 @@ export const getAllPosts = async (req, res) => {
 export const deletePost = async (req, res) => {
 
 	// type=product/article/comment/review...
-	const { type, id } = req.body
+	const { type, _id } = req.body
 
-	await eval(type).findOneAndDelete({ _id: id })
+	await eval(type).findOneAndDelete({ _id })
 
 	res.json({ ok: true })
 }
@@ -42,9 +43,9 @@ export const deletePost = async (req, res) => {
 export const fullPost = async (req, res) => {
 
 	// type=product/article/comment/review...
-	const { type, id } = req.body
+	const { type, _id } = req.body
 
-	const fullPost = await eval(type).find({ _id: id })
+	const fullPost = await eval(type).find({ _id })
 
 	res.json(fullPost[0])
 }
@@ -53,10 +54,22 @@ export const fullPost = async (req, res) => {
 export const editPost = async (req, res) => {
 
 	// type=product/article/comment/review...
-	const { type, id } = req.body
+	const { type, _id } = req.body
 
 	// edit product/article/comment/review...
-	await eval(type).findOneAndUpdate({ _id: id }, { ...req.body })
+	await eval(type).findOneAndUpdate({ _id }, { ...req.body })
+
+	res.json({ ok: true })
+}
+
+// ! addTo
+export const addTo = async (req, res) => {
+
+	// place=cart/like/...; id=productId/articleId
+	const { place, _id } = req.body
+
+	// edit `place`
+	await user.findOneAndUpdate({ _id: "64b57132ed89ca9e4cffff86" }, { $push: { [place]: _id } }) // TODO _id, TODO: push/pull...
 
 	res.json({ ok: true })
 }

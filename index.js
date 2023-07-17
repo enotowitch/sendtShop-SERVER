@@ -29,6 +29,7 @@ app.post("/getAllPosts", PostController.getAllPosts)
 app.post("/deletePost", PostController.deletePost)
 app.post("/fullPost", PostController.fullPost)
 app.post("/editPost", PostController.editPost)
+app.post("/addTo", PostController.addTo)
 // ? posts
 // ?? ROUTES
 
