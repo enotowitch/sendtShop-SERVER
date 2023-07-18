@@ -15,6 +15,9 @@ mongoose.connect(`mongodb+srv://enotowitch:qwerty123@cluster0.9tnodta.mongodb.ne
 	.then(console.log('DB OK')).catch(err => console.log('ERROR', err))
 
 // !! ROUTES
+// ! middleware
+import { addUserId } from "./middleware/addUserId.js"
+
 // ! auth
 import * as UserController from "./controllers/UserController.js"
 app.post("/loginGoogle", UserController.loginGoogle)
@@ -29,7 +32,7 @@ app.post("/getAllPosts", PostController.getAllPosts)
 app.post("/deletePost", PostController.deletePost)
 app.post("/fullPost", PostController.fullPost)
 app.post("/editPost", PostController.editPost)
-app.post("/addTo", PostController.addTo)
+app.post("/addTo", addUserId, PostController.addTo)
 // ? posts
 // ?? ROUTES
 

@@ -69,7 +69,7 @@ export const addTo = async (req, res) => {
 	const { place, _id } = req.body
 
 	// edit `place`
-	await user.findOneAndUpdate({ _id: "64b57132ed89ca9e4cffff86" }, { $push: { [place]: _id } }) // TODO _id, TODO: push/pull...
+	await user.findOneAndUpdate({ _id: req?.userId }, { $push: { [place]: _id } }) // TODO: push / pull...
 
 	res.json({ ok: true })
 }
