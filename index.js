@@ -32,7 +32,7 @@ app.post("/getAllPosts", PostController.getAllPosts)
 app.post("/deletePost", PostController.deletePost)
 app.post("/fullPost", PostController.fullPost)
 app.post("/editPost", PostController.editPost)
-app.post("/addTo", addUserId, PostController.addTo)
+app.post("/pullPush", addUserId, PostController.pullPush)
 // ? posts
 // ?? ROUTES
 

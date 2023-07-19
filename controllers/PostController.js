@@ -62,14 +62,30 @@ export const editPost = async (req, res) => {
 	res.json({ ok: true })
 }
 
-// ! addTo
-export const addTo = async (req, res) => {
+// ! pullPush
+export const pullPush = async (req, res) => {
 
-	// place=cart/like/...; id=productId/articleId
-	const { place, _id } = req.body
+	const { col, colId = req?.userId, field, item, action, dups = false } = req.body
+	// HOW TO USE:
+	// col=user/product/article...
+	// colId= userId by default (comes from addUserId middleware) || productId/articleId/...
+	// field=cart/like...
+	// item: productId/articleId/{}/...
+	// action: pull/push
+	// dups: false by default (allow duplicate items be added to `field`)
+	// dups: "TRUE example": duplicate product ids in user cart `field`
+	// dups: "FALSE example": only one user id in article like `field`
 
-	// edit `place`
-	await user.findOneAndUpdate({ _id: req?.userId }, { $push: { [place]: _id } }) // TODO: push / pull...
+	// examples:
+	// eg: user.findOneAndUpdate({ _id: req?.userId }, { $push: { cart: productId } })
+	// col, field, item
+	// eg: article.findOneAndUpdate({ _id: articleId }, { $push: { like: userId } })
+	// col, colID, field, item
+	if (action === "push") {
+		if (dups === true) {
+			await eval(col).findOneAndUpdate({ _id: colId }, { $push: { [field]: item } }) // TODO: push / pull...
+		}
+	}
 
 	res.json({ ok: true })
 }
