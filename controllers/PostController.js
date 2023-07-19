@@ -66,6 +66,7 @@ export const editPost = async (req, res) => {
 export const pullPush = async (req, res) => {
 
 	const { col, colId = req?.userId, field, item, action, dups = false, pullMode = "all" } = req.body
+	// for updating already created fields in collection
 	// HOW TO USE:
 	// col=user/product/article...
 	// colId= userId by default (comes from addUserId middleware) || productId/articleId/...
@@ -79,24 +80,23 @@ export const pullPush = async (req, res) => {
 
 	// examples:
 	// eg: user.findOneAndUpdate({ _id: req?.userId }, { $push: { cart: productId } })
-	// col, field, item
 	// eg: article.findOneAndUpdate({ _id: articleId }, { $push: { like: userId } })
-	// col, colID, field, item
 
-	// ! push
+	// ! PUSH
 	if (action === "push") {
 		if (dups === true) {
 			await eval(col).findOneAndUpdate({ _id: colId }, { $push: { [field]: item } })
 		}
+		// TODO if (dups === false)
 	}
 
-	// ! pull
+	// ! PULL
 	if (action === "pull") {
-		// ! all
+		// ! all: pull all items of one type; eg: [1,2,2,2,3] => all "2" => [1,3]
 		if (pullMode === "all") {
 			await eval(col).findOneAndUpdate({ _id: colId }, { $pull: { [field]: item } })
 		}
-		// ! one
+		// ! one: pull one item of one type; eg: [1,2,2,2,3] => one "2" => [1,2,2,3]
 		if (pullMode === "one") {
 			const foundCollection = await eval(col).find({ _id: colId }) // find exact collection
 			const withoutOneItem = foundCollection[0]?.[field] // select exact field in collection
@@ -107,6 +107,10 @@ export const pullPush = async (req, res) => {
 				{ $set: { [field]: withoutOneItem } } // replace old field with new field (without one item)
 			)
 		}
+	}
+	// ! CLEAR: clear whole field; eg: [1,2,2,2,3] => cart: []
+	if (action === "clear") {
+		await eval(col).findOneAndUpdate({ _id: colId }, { [field]: [] }) // !! array
 	}
 
 	res.json({ ok: true })
