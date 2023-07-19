@@ -1,52 +1,6 @@
-import UserModel from "../models/User.js"
 import jwt from "jsonwebtoken"
 import mailer from "../utils/mailer.js"
-
-// ! HELPER FUNCTIONS
-
-async function findUserByEmail(email) {
-	let user = await UserModel.find({ email })
-	user = user[0]
-	return user
-}
-
-async function findUserById(userId) {
-	let user = await UserModel.find({ _id: userId })
-	user = user[0]
-
-	// check if user isAdmin
-	let isAdmin
-	if (user?.email === process.env.ADMIN_EMAIL || user?.email === process.env.ADMIN_EMAIL2) {
-		isAdmin = true
-	} else {
-		isAdmin = false
-	}
-	user.isAdmin = isAdmin
-
-	return user
-}
-
-async function signToken(userId) {
-	return jwt.sign(userId, process.env.JWT)
-}
-
-async function regAndReturnUser(email, req) {
-	// check if user exists
-	const userExist = (await UserModel.find({ email })).length
-
-	// add user to DB
-	let user // pass user info to client 
-	if (!userExist) {
-		const doc = await new UserModel({ ...req.body })
-		user = await doc.save()
-	} else { // user do exist
-		user = await findUserByEmail(email)
-	}
-
-	return user
-}
-
-// ! MAIN FUNCTIONS
+import { findUserById, signToken, regAndReturnUser, verifyToken } from "./helperFunctions.js"
 
 // ! loginGoogle
 export const loginGoogle = async (req, res) => {
@@ -64,7 +18,7 @@ export const autoAuth = async (req, res) => {
 
 	const { token } = req.body
 
-	const userId = jwt.verify(token, process.env.JWT)
+	const userId = await verifyToken(token)
 	const user = await findUserById(userId)
 
 	res.json({ ok: true, user })

@@ -34,6 +34,12 @@ app.post("/fullPost", PostController.fullPost)
 app.post("/editPost", PostController.editPost)
 app.post("/pullPush", addUserId, PostController.pullPush)
 // ? posts
+
+// ! order
+import * as OrderController from "./controllers/OrderController.js"
+app.post("/create-checkout-session", OrderController.createStripePopup)
+app.post("/addOrder", OrderController.addOrder)
+// ? order
 // ?? ROUTES
 
 // ! MULTER
