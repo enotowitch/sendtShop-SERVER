@@ -65,7 +65,7 @@ export const editPost = async (req, res) => {
 // ! pullPush
 export const pullPush = async (req, res) => {
 
-	const { col, colId = req?.userId, field, item, action, dups = false } = req.body
+	const { col, colId = req?.userId, field, item, action, dups = false, pullMode = "all" } = req.body
 	// HOW TO USE:
 	// col=user/product/article...
 	// colId= userId by default (comes from addUserId middleware) || productId/articleId/...
@@ -75,15 +75,37 @@ export const pullPush = async (req, res) => {
 	// dups: false by default (allow duplicate items be added to `field`)
 	// dups: "TRUE example": duplicate product ids in user cart `field`
 	// dups: "FALSE example": only one user id in article like `field`
+	// pullMode: all/one; "all" by default (pull all or one item(s) from `field`)
 
 	// examples:
 	// eg: user.findOneAndUpdate({ _id: req?.userId }, { $push: { cart: productId } })
 	// col, field, item
 	// eg: article.findOneAndUpdate({ _id: articleId }, { $push: { like: userId } })
 	// col, colID, field, item
+
+	// ! push
 	if (action === "push") {
 		if (dups === true) {
-			await eval(col).findOneAndUpdate({ _id: colId }, { $push: { [field]: item } }) // TODO: push / pull...
+			await eval(col).findOneAndUpdate({ _id: colId }, { $push: { [field]: item } })
+		}
+	}
+
+	// ! pull
+	if (action === "pull") {
+		// ! all
+		if (pullMode === "all") {
+			await eval(col).findOneAndUpdate({ _id: colId }, { $pull: { [field]: item } })
+		}
+		// ! one
+		if (pullMode === "one") {
+			const foundCollection = await eval(col).find({ _id: colId }) // find exact collection
+			const withoutOneItem = foundCollection[0]?.[field] // select exact field in collection
+			withoutOneItem.splice(withoutOneItem.indexOf(item), 1) // delete one item from field
+
+			await eval(col).findOneAndUpdate(
+				{ _id: colId },
+				{ $set: { [field]: withoutOneItem } } // replace old field with new field (without one item)
+			)
 		}
 	}
 
