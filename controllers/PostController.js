@@ -73,7 +73,7 @@ export const pullPush = async (req, res) => {
 	// colId= userId by default (comes from addUserId middleware) || productId/articleId/...
 	// field=cart/like...
 	// item: productId/articleId/{}/...
-	// action: pull/push
+	// action: pull/push/clear
 	// dups: false by default (allow duplicate items be added to `field`)
 	// dups: "TRUE example": duplicate product ids in user cart `field`
 	// dups: "FALSE example": only one user id in article like `field`
@@ -109,7 +109,7 @@ export const pullPush = async (req, res) => {
 			)
 		}
 	}
-	// ! CLEAR: clear whole field; eg: [1,2,2,2,3] => cart: []
+	// ! CLEAR: clear whole field; eg: cart: [1,2,2,2,3] => cart: []
 	if (action === "clear") {
 		await eval(col).findOneAndUpdate({ _id: colId }, { [field]: [] }) // !! array
 	}
