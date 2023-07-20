@@ -14,7 +14,7 @@ export const addPost = async (req, res) => {
 	const doc = await eval(type)({ ...req.body })
 	await doc.save()
 
-	res.json({ ok: true })
+	res.json({ ok: true, _id: doc._id.toString() })
 }
 
 // ! getAllPosts
