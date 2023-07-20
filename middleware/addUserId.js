@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken"
+import UserModel from "../models/User.js"
 
 // * add userId to every req
 // must be before Controller function
@@ -11,6 +12,27 @@ export const addUserId = async (req, res, next) => {
 		if (token) {
 			const decoded = jwt.verify(token, process.env.JWT)
 			req.userId = decoded
+			next()
+		} else {
+			res.json() // ??
+		}
+
+	} catch (err) {
+		res.json(undefined) // ??
+		console.log(err)
+	}
+}
+
+export const addUserInfo = async (req, res, next) => {
+	try {
+		const token = req.headers.authorization
+		// !!
+		if (token) {
+			const decoded = jwt.verify(token, process.env.JWT)
+			const userId = decoded
+			const userInfo = await UserModel.find({ _id: userId })
+			console.log(userInfo)
+			req.userInfo = userInfo
 			next()
 		} else {
 			res.json() // ??

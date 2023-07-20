@@ -60,15 +60,14 @@ export const createStripePopup = async (req, res) => {
 export const addOrder = async (req, res) => {
 
 	// verify orderToken
-	const { token, cart, shipping } = req.body
-
-	// TODO add UserId or whole user
+	const { token } = req.body
+	const { cart, shipping, email } = req.userInfo[0]
 
 	const isVerifiedToken = await verifyToken(token)
 	if (isVerifiedToken) { // TODO: prevent dup orders on page reload if link copied
 		if (cart && shipping) {
 			// if user cart on client loaded create order with order.cart(same as user's for easy show prods to admin, as prods are shown in user's cart)
-			const doc = await new order({ cart, shipping })
+			const doc = await new order({ cart, shipping, email })
 			await doc.save()
 			res.json({ ok: true }) // !! wait till order is created
 		}
