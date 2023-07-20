@@ -2,6 +2,7 @@
 import product from "../models/Product.js"
 import article from "../models/Article.js" // !!
 import user from "../models/User.js"
+import order from "../models/Order.js"
 
 // ! addPost
 export const addPost = async (req, res) => {
