@@ -39,6 +39,7 @@ app.post("/pullPush", addUserId, PostController.pullPush)
 import * as OrderController from "./controllers/OrderController.js"
 app.post("/create-checkout-session", OrderController.createStripePopup)
 app.post("/addOrder", addUserInfo, OrderController.addOrder)
+app.post("/orderSendEmailTrack", OrderController.orderSendEmailTrack)
 // ? order
 // ?? ROUTES
 

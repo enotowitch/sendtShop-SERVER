@@ -9,6 +9,7 @@ const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY)
 import { signToken, verifyToken } from "./helperFunctions.js"
 // ! for addOrder
 import order from "../models/Order.js"
+import mailer from "../utils/mailer.js";
 
 // ! createStripePopup
 export const createStripePopup = async (req, res) => {
@@ -72,5 +73,19 @@ export const addOrder = async (req, res) => {
 			res.json({ ok: true }) // !! wait till order is created
 		}
 	}
+
+}
+
+// ! orderSendEmailTrack
+export const orderSendEmailTrack = async (req, res) => {
+
+	const { email, track } = req.body // user email
+
+	mailer(email, "Track delivery link", `
+	<div style="margin-bottom: 15px;">Thank you for the order! Your track delivery link - ${track}</div>
+	<a style="display: inline-flex; align-items: center; border-radius: 20px; padding: 6px 16px; background: #673BD9; color: white; text-decoration: none; font-family: Montserrat" href="${track}">TRACK DELIVERY</a>
+	`)
+
+	res.json({ ok: true })
 
 }
