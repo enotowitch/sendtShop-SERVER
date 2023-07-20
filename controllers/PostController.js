@@ -65,6 +65,8 @@ export const editPost = async (req, res) => {
 
 // ! pullPush
 export const pullPush = async (req, res) => {
+	// !! for arrays & 
+	// !! objects (separate `item` type); on "push" makes: findOneAndUpdate without $push
 
 	const { col, colId = req?.userId, field, item, action, dups = false, pullMode = "all" } = req.body
 	// for updating already created fields in collection
@@ -85,6 +87,10 @@ export const pullPush = async (req, res) => {
 
 	// ! PUSH
 	if (action === "push") {
+		if (typeof item === "object") {
+			await eval(col).findOneAndUpdate({ _id: colId }, { [field]: item })
+			return // !! mandatory
+		}
 		if (dups === true) {
 			await eval(col).findOneAndUpdate({ _id: colId }, { $push: { [field]: item } })
 		}
@@ -111,7 +117,7 @@ export const pullPush = async (req, res) => {
 	}
 	// ! CLEAR: clear whole field; eg: cart: [1,2,2,2,3] => cart: []
 	if (action === "clear") {
-		await eval(col).findOneAndUpdate({ _id: colId }, { [field]: [] }) // !! array
+		await eval(col).findOneAndUpdate({ _id: colId }, { [field]: [] })
 	}
 
 	res.json({ ok: true })

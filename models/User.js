@@ -5,10 +5,6 @@ const schema = new mongoose.Schema({
 	isAdmin: {
 		type: Boolean,
 		default: false
-	},
-	cart: {
-		type: Array,
-		default: []
 	}
 }, { strict: false, timestamps: true })
 

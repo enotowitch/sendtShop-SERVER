@@ -1,4 +1,4 @@
-// npm i express dotenv mongoose cors nodemon jsonwebtoken nodemailer multer
+// npm i express dotenv mongoose cors nodemon jsonwebtoken nodemailer multer stripe
 
 import express from 'express'
 import dotenv from 'dotenv'
