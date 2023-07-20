@@ -35,7 +35,7 @@ export const loginSendEmail = async (req, res) => {
 	// send token to email: * user gets email, clicks "verify", token written to localStorage, reload page (user authed by autoAuth)
 	const token = await signToken(user._id.toString())
 	mailer(email, "Confirm Email", `
-	<a style="display: inline-flex; align-items: center; border-radius: 20px; padding: 6px 16px; background: #673BD9; color: white; text-decoration: none; font-family: Montserrat" href="${process.env.CLIENT_URL}/verifyToken/${token}">VERIFY EMAIL</a>
+	<a style="display: inline-flex; align-items: center; border-radius: 20px; padding: 6px 16px; background: #673BD9; color: white; text-decoration: none; font-family: Montserrat" href="${process.env.CLIENT_URL}/verifyLoginToken/${token}">VERIFY EMAIL</a>
 	`)
 
 	res.json({ ok: true })

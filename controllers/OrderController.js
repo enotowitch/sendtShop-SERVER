@@ -23,7 +23,7 @@ export const createStripePopup = async (req, res) => {
 	try {
 
 		// TODO ??? if `session.payment_status = ok` then create order
-		// TODO write same HOW IT WORKS for autoAuth & verifyToken(rename to verifyLoginToken)
+		// TODO write same HOW IT WORKS for autoAuth
 		// if user is redirected to "/verifyOrderToken" page, he gets orderToken, 
 		// then client makes app.post("/addOrder") from "/verifyOrderToken" page
 		// then if token verified => create order
