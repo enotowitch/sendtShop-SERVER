@@ -62,7 +62,7 @@ export const addOrder = async (req, res) => {
 
 	// verify orderToken
 	const { token } = req.body
-	const { cart, shipping, email } = req.userInfo[0]
+	const { cart, shipping, email } = req.userInfo // !!
 
 	const isVerifiedToken = await verifyToken(token)
 	if (isVerifiedToken) { // TODO: prevent dup orders on page reload if link copied

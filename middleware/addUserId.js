@@ -31,8 +31,7 @@ export const addUserInfo = async (req, res, next) => {
 			const decoded = jwt.verify(token, process.env.JWT)
 			const userId = decoded
 			const userInfo = await UserModel.find({ _id: userId })
-			console.log(userInfo)
-			req.userInfo = userInfo
+			req.userInfo = userInfo[0] // !!
 			next()
 		} else {
 			res.json() // ??
