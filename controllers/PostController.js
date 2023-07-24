@@ -21,12 +21,19 @@ export const addPost = async (req, res) => {
 export const getAllPosts = async (req, res) => {
 
 	// type=product/article/comment/review...
-	const { type } = req.body
+	// field=tags/likes/...
+	const { type, field } = req.body
 
-	// return all product/article/comment/review...
-	const all = await eval(type).find({})
+	let response
+	response = await eval(type).find({}) // eg: all products
+	if (field) {
+		let fieldsArr = []
+		response = await eval(type).find({})
+		response = response.map(post => post?.[field].map(tag => !fieldsArr.includes(tag) && fieldsArr.push(tag)))
+		response = fieldsArr // eg: product.tags
+	}
 
-	res.json(all)
+	res.json(response) // all product/article/comment/review... || product.tags/article.likes...
 }
 
 // ! deletePost
