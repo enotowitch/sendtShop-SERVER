@@ -30,7 +30,7 @@ export const getAllPosts = async (req, res) => {
 		let fieldsArr = []
 		response = await eval(type).find({})
 		response = response.map(post => post?.[field].map(tag => !fieldsArr.includes(tag) && fieldsArr.push(tag)))
-		response = fieldsArr // eg: product.tags
+		response = fieldsArr // eg: product.tags (without dups)
 	}
 
 	res.json(response) // all product/article/comment/review... || product.tags/article.likes...
@@ -61,7 +61,7 @@ export const fullPost = async (req, res) => {
 // ! editPost
 export const editPost = async (req, res) => {
 
-	// type=product/article/comment/review...
+	// type=product/article/order/comment/review...
 	const { type, _id } = req.body
 
 	// edit product/article/comment/review...
