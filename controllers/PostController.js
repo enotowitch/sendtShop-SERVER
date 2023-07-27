@@ -53,9 +53,10 @@ export const fullPost = async (req, res) => {
 	// type=product/article/comment/review...
 	const { type, _id } = req.body
 
-	const fullPost = await eval(type).find({ _id })
+	// !! TODO possible probs: if I get order via fullPost it's updated on every visit; order uses updatedAt to show when the track was sent, assuming order is only updated 1 time, when track is sent
+	const fullPost = await eval(type).findOneAndUpdate({ _id }, { $inc: { views: 1 } })
 
-	res.json(fullPost[0])
+	res.json(fullPost)
 }
 
 // ! editPost
