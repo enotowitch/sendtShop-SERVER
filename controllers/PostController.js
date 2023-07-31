@@ -102,7 +102,15 @@ export const pullPush = async (req, res) => {
 		if (dups === true) {
 			await eval(col).findOneAndUpdate({ _id: colId }, { $push: { [field]: item } })
 		}
-		// TODO if (dups === false)
+		if (dups === false) { 
+			// prevent pushing dups to col field; 
+			// eg: don't push prodId to cart if cart already has this prodId
+			const foundCol = await eval(col).find({ _id: colId })
+			const searchedField = foundCol?.[0][field]
+			if (!searchedField?.includes(item)) {
+				await eval(col).findOneAndUpdate({ _id: colId }, { $push: { [field]: item } })
+			}
+		}
 	}
 
 	// ! PULL
