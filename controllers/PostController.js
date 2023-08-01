@@ -83,7 +83,7 @@ export const pullPush = async (req, res) => {
 	// colId= userId by default (comes from addUserId middleware) || productId/articleId/...
 	// field=cart/like...
 	// item: productId/articleId/{}/...
-	// action: pull/push/clear
+	// action: pull/push/clear/pullPush
 	// dups: false by default (allow duplicate items be added to `field`)
 	// dups: "TRUE example": duplicate product ids in user cart `field`
 	// dups: "FALSE example": only one user id in article like `field`
@@ -102,7 +102,7 @@ export const pullPush = async (req, res) => {
 		if (dups === true) {
 			await eval(col).findOneAndUpdate({ _id: colId }, { $push: { [field]: item } })
 		}
-		if (dups === false) { 
+		if (dups === false) {
 			// prevent pushing dups to col field; 
 			// eg: don't push prodId to cart if cart already has this prodId
 			const foundCol = await eval(col).find({ _id: colId })
@@ -135,6 +135,19 @@ export const pullPush = async (req, res) => {
 	if (action === "clear") {
 		await eval(col).findOneAndUpdate({ _id: colId }, { [field]: [] })
 	}
+	// ! pullPush
+	if (action === "pullPush") {
+		// if id exists (pull) / if id NOT exist (push)
+		// eg: dislike(pull) / like (push): article.likes
+		const foundCol = await eval(col).find({ _id: colId })
+		const searchedField = foundCol?.[0][field]
+		if (!searchedField?.includes(item)) {
+			await eval(col).findOneAndUpdate({ _id: colId }, { $push: { [field]: item } })
+		} else {
+			await eval(col).findOneAndUpdate({ _id: colId }, { $pull: { [field]: item } })
+		}
+	}
 
 	res.json({ ok: true })
 }
+// test commit 2
