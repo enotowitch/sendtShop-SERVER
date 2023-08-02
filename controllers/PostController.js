@@ -143,8 +143,10 @@ export const pullPush = async (req, res) => {
 		const searchedField = foundCol?.[0][field]
 		if (!searchedField?.includes(item)) {
 			await eval(col).findOneAndUpdate({ _id: colId }, { $push: { [field]: item } })
+			return res.json({ ok: true, action: "push" })
 		} else {
 			await eval(col).findOneAndUpdate({ _id: colId }, { $pull: { [field]: item } })
+			return res.json({ ok: true, action: "pull" })
 		}
 	}
 
