@@ -50,6 +50,14 @@ export const sortPosts = async (req, res) => {
 	res.json(sorted)
 }
 
+export const filterPosts = async (req, res) => {
+
+	const { type, field, filterPostsQuery } = req.body
+
+	let filtered = await eval(type).find({ [field]: filterPostsQuery })
+	res.json(filtered)
+}
+
 // ! deletePost
 export const deletePost = async (req, res) => {
 
