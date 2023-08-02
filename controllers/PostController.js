@@ -36,6 +36,17 @@ export const getAllPosts = async (req, res) => {
 	res.json(response) // all product/article/comment/review... || product.tags/article.likes...
 }
 
+export const sortPosts = async (req, res) => {
+
+	// type=product/article/comment/review...
+	// field=price/title/...
+	// sortType=asc/desc/...
+	const { type, sortField, sortType } = req.body
+
+	const sorted = await eval(type).find({}).sort({ [sortField]: sortType })
+	res.json(sorted)
+}
+
 // ! deletePost
 export const deletePost = async (req, res) => {
 
