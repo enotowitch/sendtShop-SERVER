@@ -36,25 +36,24 @@ export const getAllPosts = async (req, res) => {
 	res.json(response) // all product/article/comment/review... || product.tags/article.likes...
 }
 
-// ! sortPosts
-export const sortPosts = async (req, res) => {
+export const filterPosts = async (req, res) => {
 
-	// type=product/article/comment/review...
-	// field=price/title/...
-	// sortType=asc/desc/...
-	const { type, sortPostsQuery } = req.body
+	const { type, field, filterPostsQuery, sortPostsQuery } = req.body
+
 	const sortField = sortPostsQuery?.match(/(.+)&(.+)/)?.[1] // eg: price => price&asc
 	const sortType = sortPostsQuery?.match(/(.+)&(.+)/)?.[2] // eg: asc => price&asc
 
-	const sorted = await eval(type).find({}).sort({ [sortField]: sortType })
-	res.json(sorted)
-}
+	let filtered
+	if (filterPostsQuery && !sortPostsQuery) { // filter without sort
+		filtered = await eval(type).find({ [field]: filterPostsQuery })
+	}
+	if (filterPostsQuery && sortPostsQuery) { // filter WITH sort
+		filtered = await eval(type).find({ [field]: filterPostsQuery }).sort({ [sortField]: sortType })
+	}
+	if (!filterPostsQuery && sortPostsQuery) { // NO filter WITH sort
+		filtered = await eval(type).find({}).sort({ [sortField]: sortType })
+	}
 
-export const filterPosts = async (req, res) => {
-
-	const { type, field, filterPostsQuery } = req.body
-
-	let filtered = await eval(type).find({ [field]: filterPostsQuery })
 	res.json(filtered)
 }
 
