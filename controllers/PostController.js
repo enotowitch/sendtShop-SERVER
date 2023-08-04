@@ -39,33 +39,32 @@ export const getAllPosts = async (req, res) => {
 // ! filterPosts
 export const filterPosts = async (req, res) => {
 
-	let { type, field, filterPostsQuery, sortPostsQuery } = req.body
+	const { type, filterPostsQuery } = req.body
+	const { tag, text, sort } = filterPostsQuery
 
-	const sortField = sortPostsQuery?.match(/(.+)&(.+)/)?.[1] // eg: price => price&asc
-	const sortType = sortPostsQuery?.match(/(.+)&(.+)/)?.[2] // eg: asc => price&asc
-
-	if (field === "text" && filterPostsQuery) { // ! search text
-		filterPostsQuery = { $regex: filterPostsQuery, $options: 'i' }
-	}
+	const sortField = sort?.match(/(.+)&(.+)/)?.[1] // eg: price => price&asc
+	const sortType = sort?.match(/(.+)&(.+)/)?.[2] // eg: asc => price&asc
 
 	let filtered
-	// eg: sale					undefined
-	if (filterPostsQuery && !sortPostsQuery) { // ! filter without sort
-		// eg: type:article field:undefined filterPostsQuery:sale sortPostsQuery:undefined
-		filtered = await eval(type).find({ [field]: filterPostsQuery })
+	const regExp = { $regex: text.toString(), $options: 'i' }
+
+	if (tag && !text) {
+		console.log(111)
+		filtered = await eval(type).find({ tags: tag }).sort({ [sortField]: sortType })
 	}
-	// eg: sale					createdAt&desc
-	if (filterPostsQuery && sortPostsQuery) { // ! filter WITH sort
-		// eg: type:product field:tags filterPostsQuery:sale sortPostsQuery:createdAt&desc
-		filtered = await eval(type).find({ [field]: filterPostsQuery }).sort({ [sortField]: sortType })
+	if (!tag && text) {
+		console.log(222)
+		filtered = await eval(type).find({ text: regExp }).sort({ [sortField]: sortType })
 	}
-	// eg: undefined			createdAt&desc
-	if (!filterPostsQuery && sortPostsQuery) { // ! NO filter WITH sort
-		// eg: type:product field:tags filterPostsQuery: sortPostsQuery:createdAt&desc
-		filtered = await eval(type).find({}).sort({ [sortField]: sortType })
+	if (tag && text) {
+		console.log(333)
+		filtered = await eval(type).find({ tags: tag, text: regExp }).sort({ [sortField]: sortType })
+	}
+	if (!tag && !text) {
+		console.log(444)
+		filtered = await eval(type).find({}).sort({ [sortField]: sortType }) // no search = return all posts
 	}
 
-	console.log("type:" + type, "field:" + field, "filterPostsQuery:" + filterPostsQuery, "sortPostsQuery:" + sortPostsQuery)
 	res.json(filtered)
 }
 
