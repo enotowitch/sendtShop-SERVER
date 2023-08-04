@@ -39,22 +39,33 @@ export const getAllPosts = async (req, res) => {
 // ! filterPosts
 export const filterPosts = async (req, res) => {
 
-	const { type, field, filterPostsQuery, sortPostsQuery } = req.body
+	let { type, field, filterPostsQuery, sortPostsQuery } = req.body
 
 	const sortField = sortPostsQuery?.match(/(.+)&(.+)/)?.[1] // eg: price => price&asc
 	const sortType = sortPostsQuery?.match(/(.+)&(.+)/)?.[2] // eg: asc => price&asc
 
+	if (field === "text" && filterPostsQuery) { // ! search text
+		filterPostsQuery = { $regex: filterPostsQuery, $options: 'i' }
+	}
+
 	let filtered
-	if (filterPostsQuery && !sortPostsQuery) { // filter without sort
+	// eg: sale					undefined
+	if (filterPostsQuery && !sortPostsQuery) { // ! filter without sort
+		// eg: type:article field:undefined filterPostsQuery:sale sortPostsQuery:undefined
 		filtered = await eval(type).find({ [field]: filterPostsQuery })
 	}
-	if (filterPostsQuery && sortPostsQuery) { // filter WITH sort
+	// eg: sale					createdAt&desc
+	if (filterPostsQuery && sortPostsQuery) { // ! filter WITH sort
+		// eg: type:product field:tags filterPostsQuery:sale sortPostsQuery:createdAt&desc
 		filtered = await eval(type).find({ [field]: filterPostsQuery }).sort({ [sortField]: sortType })
 	}
-	if (!filterPostsQuery && sortPostsQuery) { // NO filter WITH sort
+	// eg: undefined			createdAt&desc
+	if (!filterPostsQuery && sortPostsQuery) { // ! NO filter WITH sort
+		// eg: type:product field:tags filterPostsQuery: sortPostsQuery:createdAt&desc
 		filtered = await eval(type).find({}).sort({ [sortField]: sortType })
 	}
 
+	console.log("type:" + type, "field:" + field, "filterPostsQuery:" + filterPostsQuery, "sortPostsQuery:" + sortPostsQuery)
 	res.json(filtered)
 }
 
