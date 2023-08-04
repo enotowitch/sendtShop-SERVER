@@ -25,7 +25,7 @@ export const getAllPosts = async (req, res) => {
 	const { type, field } = req.body
 
 	let response
-	response = await eval(type).find({}) // eg: all products
+	response = await eval(type).find({}).sort({ createdAt: "desc" }) // eg: all products
 	if (field) {
 		let fieldsArr = []
 		response = await eval(type).find({})
@@ -36,6 +36,7 @@ export const getAllPosts = async (req, res) => {
 	res.json(response) // all product/article/comment/review... || product.tags/article.likes...
 }
 
+// ! filterPosts
 export const filterPosts = async (req, res) => {
 
 	const { type, field, filterPostsQuery, sortPostsQuery } = req.body
