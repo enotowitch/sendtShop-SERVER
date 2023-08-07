@@ -29,7 +29,7 @@ export const getAllPosts = async (req, res) => {
 	if (field) {
 		let fieldsArr = []
 		response = await eval(type).find({})
-		response = response.map(post => post?.[field].map(tag => !fieldsArr.includes(tag) && fieldsArr.push(tag)))
+		response = response.map(post => post?.[field]?.map(tag => !fieldsArr.includes(tag) && fieldsArr.push(tag)))
 		response = fieldsArr // eg: product.tags (without dups)
 	}
 
