@@ -127,10 +127,18 @@ export const pullPush = async (req, res) => {
 
 	// ! PUSH
 	if (action === "push") {
+		// ! object, array
 		if (typeof item === "object") {
-			await eval(col).findOneAndUpdate({ _id: colId }, { [field]: item })
-			return // !! mandatory
+			if (dups === true) { // push
+				await eval(col).findOneAndUpdate({ _id: colId }, { $push: { [field]: item } })
+				return // !! mandatory
+			}
+			if (dups === false) { // (default) rewrite
+				await eval(col).findOneAndUpdate({ _id: colId }, { [field]: item })
+				return // !! mandatory
+			}
 		}
+		// ? object, array
 		if (dups === true) {
 			await eval(col).findOneAndUpdate({ _id: colId }, { $push: { [field]: item } })
 		}
