@@ -27,7 +27,7 @@ app.post("/loginSendEmail", UserController.loginSendEmail)
 
 // ! posts
 import * as PostController from "./controllers/PostController.js"
-app.post("/addPost", PostController.addPost)
+app.post("/addPost", addUserId, PostController.addPost)
 app.post("/getAllPosts", PostController.getAllPosts)
 app.post("/filterPosts", PostController.filterPosts)
 app.post("/deletePost", PostController.deletePost)

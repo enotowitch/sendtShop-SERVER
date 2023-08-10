@@ -3,15 +3,17 @@ import product from "../models/Product.js"
 import article from "../models/Article.js" // !!
 import user from "../models/User.js"
 import order from "../models/Order.js"
+import review from "../models/Review.js"
 
 // ! addPost
 export const addPost = async (req, res) => {
 
 	// type=product/article/comment/review...
 	const { type } = req.body
+	const userId = req?.userId
 
 	// save product/article/comment/review...
-	const doc = await eval(type)({ ...req.body })
+	const doc = await eval(type)({ ...req.body, userId })
 	await doc.save()
 
 	res.json({ ok: true, _id: doc._id.toString() })
