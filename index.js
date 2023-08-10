@@ -16,7 +16,7 @@ mongoose.connect(`mongodb+srv://enotowitch:qwerty123@cluster0.9tnodta.mongodb.ne
 
 // !! ROUTES
 // ! middleware
-import { addUserId, addUserInfo } from "./middleware/addUserId.js" // TODO rename
+import { addUserId, addUserInfo } from "./middleware/addUserInfo.js" // TODO rename
 
 // ! auth
 import * as UserController from "./controllers/UserController.js"
@@ -27,7 +27,7 @@ app.post("/loginSendEmail", UserController.loginSendEmail)
 
 // ! posts
 import * as PostController from "./controllers/PostController.js"
-app.post("/addPost", addUserId, PostController.addPost)
+app.post("/addPost", addUserId, addUserInfo, PostController.addPost)
 app.post("/getAllPosts", PostController.getAllPosts)
 app.post("/filterPosts", PostController.filterPosts)
 app.post("/deletePost", PostController.deletePost)

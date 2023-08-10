@@ -11,9 +11,10 @@ export const addPost = async (req, res) => {
 	// type=product/article/comment/review...
 	const { type } = req.body
 	const userId = req?.userId
+	const user = req.userInfo
 
 	// save product/article/comment/review...
-	const doc = await eval(type)({ ...req.body, userId })
+	const doc = await eval(type)({ ...req.body, userId, user })
 	await doc.save()
 
 	res.json({ ok: true, _id: doc._id.toString() })
