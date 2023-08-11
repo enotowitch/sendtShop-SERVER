@@ -62,7 +62,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
-app.post("/upload", upload.array("image", 2), (req, res) => {
+app.post("/upload", upload.array("image", 99), (req, res) => {
 	const imgArr = req.files?.map(file => `${process.env.SERVER_URL}/upload/${file.originalname}`)
 	res.json({ imgArr })
 })
