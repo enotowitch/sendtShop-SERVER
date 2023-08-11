@@ -46,7 +46,7 @@ app.post("/orderSendEmailTrack", OrderController.orderSendEmailTrack)
 
 // ! MULTER
 import multer from 'multer'
-import fs, { existsSync } from "fs"
+import fs, { existsSync, unlinkSync } from "fs"
 
 const storage = multer.diskStorage({
 	"destination": (req, file, cb) => {
@@ -68,4 +68,10 @@ app.post("/upload", upload.array("image", 99), (req, res) => {
 })
 
 app.use("/upload", express.static("upload"))
+
+// ! delete img
+app.post("/deleteImg", (req, res) => {
+	const { imgName } = req.body
+	imgName && unlinkSync(`upload/${imgName}`)
+})
 // ? MULTER
