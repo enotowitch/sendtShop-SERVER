@@ -42,7 +42,7 @@ export const getAllPosts = async (req, res) => {
 // ! filterPosts
 export const filterPosts = async (req, res) => {
 
-	const { type, filterPostsQuery } = req.body
+	const { type, filterPostsQuery, skip } = req.body
 
 	let tag, text, sort
 	if (filterPostsQuery) { // prevent can not destructure
@@ -57,19 +57,19 @@ export const filterPosts = async (req, res) => {
 
 	if (tag && !text) {
 		console.log(111)
-		filtered = await eval(type).find({ tags: tag }).sort({ [sortField]: sortType })
+		filtered = await eval(type).find({ tags: tag }).skip(skip).limit(1).sort({ [sortField]: sortType })
 	}
 	if (!tag && text) {
 		console.log(222)
-		filtered = await eval(type).find({ text: regExp }).sort({ [sortField]: sortType })
+		filtered = await eval(type).find({ text: regExp }).skip(skip).limit(1).sort({ [sortField]: sortType })
 	}
 	if (tag && text) {
 		console.log(333)
-		filtered = await eval(type).find({ tags: tag, text: regExp }).sort({ [sortField]: sortType })
+		filtered = await eval(type).find({ tags: tag, text: regExp }).skip(skip).limit(1).sort({ [sortField]: sortType })
 	}
 	if (!tag && !text) { // no search = return all posts
 		console.log(444)
-		filtered = await eval(type).find({}).sort({ [sortField]: sortType })
+		filtered = await eval(type).find({}).skip(skip).limit(1).sort({ [sortField]: sortType })
 	}
 
 	res.json(filtered)
