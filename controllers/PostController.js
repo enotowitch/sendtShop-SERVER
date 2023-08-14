@@ -43,13 +43,17 @@ export const getAllPosts = async (req, res) => {
 export const filterPosts = async (req, res) => {
 
 	const { type, filterPostsQuery } = req.body
-	const { tag, text, sort } = filterPostsQuery
+
+	let tag, text, sort
+	if (filterPostsQuery) { // prevent can not destructure
+		({ tag, text, sort } = filterPostsQuery)
+	}
 
 	const sortField = sort?.match(/(.+)&(.+)/)?.[1] // eg: price => price&asc
 	const sortType = sort?.match(/(.+)&(.+)/)?.[2] // eg: asc => price&asc
 
 	let filtered
-	const regExp = { $regex: text.toString(), $options: 'i' }
+	const regExp = { $regex: text?.toString(), $options: 'i' }
 
 	if (tag && !text) {
 		console.log(111)
@@ -63,9 +67,9 @@ export const filterPosts = async (req, res) => {
 		console.log(333)
 		filtered = await eval(type).find({ tags: tag, text: regExp }).sort({ [sortField]: sortType })
 	}
-	if (!tag && !text) {
+	if (!tag && !text) { // no search = return all posts
 		console.log(444)
-		filtered = await eval(type).find({}).sort({ [sortField]: sortType }) // no search = return all posts
+		filtered = await eval(type).find({}).sort({ [sortField]: sortType })
 	}
 
 	res.json(filtered)
