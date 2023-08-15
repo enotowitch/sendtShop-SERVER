@@ -20,6 +20,26 @@ export const addPost = async (req, res) => {
 	res.json({ ok: true, _id: doc._id.toString() })
 }
 
+// ! test
+export const test = async (req, res) => {
+
+	for (let i = 0; i <= 100; i++) {
+
+		const randomNum = (Math.random() * i).toFixed(2)
+		const cats = ["new", "featured", "hot", "sale"]
+		const randomCat = Math.floor(Math.random() * cats.length)
+
+		// ! testProd
+		const testProd = { tags: [cats[randomCat], cats?.[randomCat + 1]], sizes: [`test size ${i}`], colors: [`test color ${i}`], characteristicNames: [`test char name ${i}`], characteristicValues: [`test char value ${i}`], informationNames: [`test info name ${i}`], informationValues: [`test info value ${i}`], img: [`https://picsum.photos/800/600?random=${i}`], title: `test prod ${i}`, brand: `test brand ${i}`, price: randomNum, text: `test text ${i}`, custom_field: `test custom field ${i}`, type: `product`, userId: `64da3136ddb6d8c658bc8379` }
+		// ? testProd
+
+		const doc = await product({ ...testProd })
+		await doc.save()
+	}
+
+	res.json({ ok: true })
+}
+
 // ! getAllPosts
 export const getAllPosts = async (req, res) => {
 
@@ -57,19 +77,19 @@ export const filterPosts = async (req, res) => {
 
 	if (tag && !text) {
 		console.log(111)
-		filtered = await eval(type).find({ tags: tag }).skip(skip).limit(1).sort({ [sortField]: sortType })
+		filtered = await eval(type).find({ tags: tag }).skip(skip).limit(10).sort({ [sortField]: sortType })
 	}
 	if (!tag && text) {
 		console.log(222)
-		filtered = await eval(type).find({ $or: [{ title: regExp }, { text: regExp }] }).skip(skip).limit(1).sort({ [sortField]: sortType })
+		filtered = await eval(type).find({ $or: [{ title: regExp }, { text: regExp }] }).skip(skip).limit(10).sort({ [sortField]: sortType })
 	}
 	if (tag && text) {
 		console.log(333)
-		filtered = await eval(type).find({ tags: tag, $or: [{ title: regExp }, { text: regExp }] }).skip(skip).limit(1).sort({ [sortField]: sortType })
+		filtered = await eval(type).find({ tags: tag, $or: [{ title: regExp }, { text: regExp }] }).skip(skip).limit(10).sort({ [sortField]: sortType })
 	}
 	if (!tag && !text) { // no search = return all posts
 		console.log(444)
-		filtered = await eval(type).find({}).skip(skip).limit(1).sort({ [sortField]: sortType })
+		filtered = await eval(type).find({}).skip(skip).limit(10).sort({ [sortField]: sortType })
 	}
 
 	res.json(filtered)
