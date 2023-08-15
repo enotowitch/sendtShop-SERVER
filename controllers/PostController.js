@@ -61,11 +61,11 @@ export const filterPosts = async (req, res) => {
 	}
 	if (!tag && text) {
 		console.log(222)
-		filtered = await eval(type).find({ text: regExp }).skip(skip).limit(1).sort({ [sortField]: sortType })
+		filtered = await eval(type).find({ $or: [{ title: regExp }, { text: regExp }] }).skip(skip).limit(1).sort({ [sortField]: sortType })
 	}
 	if (tag && text) {
 		console.log(333)
-		filtered = await eval(type).find({ tags: tag, text: regExp }).skip(skip).limit(1).sort({ [sortField]: sortType })
+		filtered = await eval(type).find({ tags: tag, $or: [{ title: regExp }, { text: regExp }] }).skip(skip).limit(1).sort({ [sortField]: sortType })
 	}
 	if (!tag && !text) { // no search = return all posts
 		console.log(444)
