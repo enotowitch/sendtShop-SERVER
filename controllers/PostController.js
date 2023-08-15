@@ -30,7 +30,7 @@ export const test = async (req, res) => {
 		const randomCat = Math.floor(Math.random() * cats.length)
 
 		// ! testProd
-		const testProd = { tags: [cats[randomCat], cats?.[randomCat + 1]], sizes: [`test size ${i}`], colors: [`test color ${i}`], characteristicNames: [`test char name ${i}`], characteristicValues: [`test char value ${i}`], informationNames: [`test info name ${i}`], informationValues: [`test info value ${i}`], img: [`https://picsum.photos/800/600?random=${i}`], title: `test prod ${i}`, brand: `test brand ${i}`, price: randomNum, text: `test text ${i}`, custom_field: `test custom field ${i}`, type: `product`, userId: `64da3136ddb6d8c658bc8379` }
+		const testProd = { tags: [cats[randomCat], cats?.[randomCat + 1]], sizes: [`test size ${i}`], colors: [`test color ${i}`], characteristicNames: [`test char name ${i}`], characteristicValues: [`test char value ${i}`], informationNames: [`test info name ${i}`], informationValues: [`test info value ${i}`], img: [`https://picsum.photos/800/600?random=${i}`, `https://picsum.photos/800/600?random=${i + 1}`, `https://picsum.photos/800/600?random=${i + 2}`], title: `test prod ${i}`, brand: `test brand ${i}`, price: randomNum, text: `test text ${i}`, custom_field: `test custom field ${i}`, type: `product`, userId: `64da3136ddb6d8c658bc8379` }
 		// ? testProd
 
 		const doc = await product({ ...testProd })
