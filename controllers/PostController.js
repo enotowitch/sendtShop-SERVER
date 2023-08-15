@@ -25,7 +25,7 @@ export const test = async (req, res) => {
 
 	for (let i = 0; i <= 100; i++) {
 
-		const randomNum = (Math.random() * i).toFixed(2)
+		const randomNum = Number((Math.random() * i).toFixed(2))
 		const cats = ["new", "featured", "hot", "sale"]
 		const randomCat = Math.floor(Math.random() * cats.length)
 
