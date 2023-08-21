@@ -1,6 +1,30 @@
 import ContactUsModel from "../models/ContactUs.js"
 import SubscriberModel from "../models/Subscriber.js"
 import mailer from "../utils/mailer.js"
+// other
+import about from "../models/About.js"
+import terms from "../models/Terms.js"
+import privacy from "../models/Privacy.js"
+import returns from "../models/Returns.js"
+
+// ! editOther
+export const editOther = async (req, res) => {
+
+	const { type } = req.body
+
+	// create (if not created): about us/terms and conds/privacy/ policy/return policy/...
+	const find = await eval(type).findById("myCustomOneId")
+	if (!find) {
+		const doc = await eval(type)({})
+		await doc.save()
+	}
+
+	// update: about us/terms and conds/privacy/ policy/return policy/...
+	await eval(type).findOneAndUpdate({ _id: "myCustomOneId" }, { ...req.body })
+
+	res.json({ ok: true })
+}
+// ? editOther
 
 // ! contactUs
 export const contactUs = async (req, res) => {

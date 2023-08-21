@@ -4,6 +4,11 @@ import article from "../models/Article.js" // !!
 import user from "../models/User.js"
 import order from "../models/Order.js"
 import review from "../models/Review.js"
+// other
+import about from "../models/About.js"
+import terms from "../models/Terms.js"
+import privacy from "../models/Privacy.js"
+import returns from "../models/Returns.js"
 
 // ! addPost
 export const addPost = async (req, res) => {
