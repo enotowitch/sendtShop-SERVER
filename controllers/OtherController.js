@@ -1,4 +1,5 @@
-import ContactUs from "../models/ContactUs.js"
+import ContactUsModel from "../models/ContactUs.js"
+import SubscriberModel from "../models/Subscriber.js"
 import mailer from "../utils/mailer.js"
 
 // ! contactUs
@@ -8,7 +9,7 @@ export const contactUs = async (req, res) => {
 
 	try {
 		// ! DB
-		const doc = await new ContactUs({ ...req.body })
+		const doc = await new ContactUsModel({ ...req.body })
 		const saved = await doc.save()
 		res.json({ ok: true, msg: "Message received" })
 
@@ -33,3 +34,29 @@ export const contactUs = async (req, res) => {
 	}
 }
 // ? contactUs
+
+// ! subscribe
+export const subscribe = async (req, res) => {
+
+	const { email } = req.body
+
+	const find = await SubscriberModel.find({ email })
+
+	// * not found in DB
+	if (find.length === 0) {
+		// ! DB
+		const doc = await new SubscriberModel({ ...req.body })
+		doc.save()
+
+		// ! mailer
+		mailer(email, "SUBSCRIPTION", `
+				<div style="font-size: 22px"><b>Thank you</b> for subscription to our Newsletter!</div>
+			`)
+
+		return res.json({ ok: true, msg: "you are subscribed" })
+	} else {
+		// * found in DB
+		return res.json({ ok: false, msg: "already subscribed" })
+	}
+}
+// ? subscribe
