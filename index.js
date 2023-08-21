@@ -43,6 +43,11 @@ app.post("/create-checkout-session", OrderController.createStripePopup)
 app.post("/addOrder", addUserInfo, OrderController.addOrder)
 app.post("/orderSendEmailTrack", OrderController.orderSendEmailTrack)
 // ? order
+
+// ! other
+import * as OtherController from "./controllers/OtherController.js"
+app.post("/contactUs", OtherController.contactUs)
+// ? other
 // ?? ROUTES
 
 // ! MULTER
