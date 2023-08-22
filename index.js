@@ -70,9 +70,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
-app.post("/upload", upload.array("image", 99), (req, res) => {
-	const imgArr = req.files?.map(file => `${process.env.SERVER_URL}/upload/${file.originalname}`)
-	res.json({ imgArr })
+app.post("/upload", upload.array("anyfile", 99), (req, res) => {
+	const fileArr = req.files?.map(file => `${process.env.SERVER_URL}/upload/${file.originalname}`)
+	res.json({ fileArr })
 })
 
 app.use("/upload", express.static("upload"))
