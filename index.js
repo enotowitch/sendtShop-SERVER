@@ -48,7 +48,7 @@ app.post("/orderSendEmailTrack", OrderController.orderSendEmailTrack)
 import * as OtherController from "./controllers/OtherController.js"
 app.post("/contactUs", OtherController.contactUs)
 app.post("/subscribe", OtherController.subscribe)
-app.post("/editOther", OtherController.editOther)
+app.post("/editFooter", OtherController.editFooter)
 // ? other
 // ?? ROUTES
 

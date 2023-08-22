@@ -7,9 +7,10 @@ import terms from "../models/Terms.js"
 import privacy from "../models/Privacy.js"
 import returns from "../models/Returns.js"
 
-// ! editOther
-export const editOther = async (req, res) => {
+// ! editFooter
+export const editFooter = async (req, res) => {
 
+	// type=about/terms/privacy/returns/...
 	const { type } = req.body
 
 	// create (if not created): about us/terms and conds/privacy/ policy/return policy/...
@@ -24,7 +25,7 @@ export const editOther = async (req, res) => {
 
 	res.json({ ok: true })
 }
-// ? editOther
+// ? editFooter
 
 // ! contactUs
 export const contactUs = async (req, res) => {
