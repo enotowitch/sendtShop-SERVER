@@ -163,11 +163,11 @@ export const pullPush = async (req, res) => {
 		if (typeof item === "object") {
 			if (dups === true) { // push
 				await eval(col).findOneAndUpdate({ _id: colId }, { $push: { [field]: item } })
-				return // !! mandatory
+				return res.json({ ok: true }) // !! mandatory
 			}
 			if (dups === false) { // (default) rewrite
 				await eval(col).findOneAndUpdate({ _id: colId }, { [field]: item })
-				return // !! mandatory
+				return res.json({ ok: true }) // !! mandatory
 			}
 		}
 		// ? object, array
@@ -184,6 +184,7 @@ export const pullPush = async (req, res) => {
 			}
 		}
 	}
+	// ? PUSH
 
 	// ! PULL
 	if (action === "pull") {
@@ -203,6 +204,8 @@ export const pullPush = async (req, res) => {
 			)
 		}
 	}
+	// ? PULL
+
 	// ! CLEAR: clear whole field; eg: cart: [1,2,2,2,3] => cart: []
 	if (action === "clear") {
 		await eval(col).findOneAndUpdate({ _id: colId }, { [field]: [] })

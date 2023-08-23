@@ -37,3 +37,10 @@ app.post("/create-checkout-session", async (req, res) => {
 	}
 })
 // ? STRIPE
+
+===
+
+const now = Date.now() // needs to be static
+const fileName = (file) => file.originalname + now
+
+USE:  fileName(file)
