@@ -7,6 +7,8 @@ import dotenv from 'dotenv'
 dotenv.config()
 const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY)
 import { signToken, verifyToken } from "./helperFunctions.js"
+import user from "../models/User.js"
+import product from "../models/Product.js"
 // ! for addOrder
 import order from "../models/Order.js"
 import mailer from "../utils/mailer.js";
@@ -14,12 +16,49 @@ import mailer from "../utils/mailer.js";
 // ! createStripePopup
 export const createStripePopup = async (req, res) => {
 
-	console.log(req.body) // TODO change incoming data
+	const { userId } = req.body // req.userId brakes all
+	const _user = await user.find({ _id: userId })
+	const userCart = _user?.[0]?.cart
 
-	const storeItems = new Map([ // TODO delete FAKE data
-		[1, { priceInCents: 10000, name: "Test with random price 1" }],
-		[2, { priceInCents: 20000, name: "Test with random price 2" }],
-	])
+	const frontCustomFields = []
+	userCart?.map(prod => prod.custom_field_names?.map(fieldName => frontCustomFields.push({ name: fieldName, option: JSON.parse(prod[fieldName]).name })))
+
+	// TODO cur. works for 2 diff prods.
+	let prodIds = []
+	let prodQuantity = []
+
+	userCart?.map(prod => {
+		prodIds.push(prod._id)
+		prodQuantity.push(prod.quantity)
+	})
+
+	const DBProds = await product.find({ _id: { $in: prodIds } })
+
+	const prices = []
+	const titles = []
+
+	DBProds?.map(DBProd => {
+		let additionalPrice = 0
+		let additionalOptionNames = ""
+		let price = 0
+		let title = ""
+
+		DBProd.custom_fields?.map(dbCustomField => {
+			frontCustomFields.map(frontCustomField => frontCustomField.name === dbCustomField.name && dbCustomField.options?.map(dbCustomFieldOption => {
+				if (dbCustomFieldOption) {
+					if (dbCustomFieldOption.name === frontCustomField.option) {
+						additionalPrice += Number(dbCustomFieldOption.price)
+						additionalOptionNames += " " + dbCustomFieldOption.name
+					}
+				}
+			})
+			)
+			price = (Number(DBProd.price) + Number(additionalPrice)) * 100
+			title = DBProd.title + additionalOptionNames
+		})
+		prices.push(price)
+		titles.push(title)
+	})
 
 	try {
 
@@ -34,17 +73,16 @@ export const createStripePopup = async (req, res) => {
 		const session = await stripe.checkout.sessions.create({
 			payment_method_types: ["card"],
 			mode: "payment",
-			line_items: req.body.items.map(item => {
-				const storeItem = storeItems.get(item.id)
+			line_items: titles.map((title, ind) => {
 				return {
 					price_data: {
 						currency: "usd",
 						product_data: {
-							name: storeItem.name,
+							name: title,
 						},
-						unit_amount: storeItem.priceInCents,
+						unit_amount: prices[ind],
 					},
-					quantity: item.quantity,
+					quantity: prodQuantity[ind],
 				}
 			}),
 			success_url: `${process.env.CLIENT_URL}/verifyOrderToken/${orderToken}`,
