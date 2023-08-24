@@ -227,4 +227,30 @@ export const pullPush = async (req, res) => {
 
 	res.json({ ok: true })
 }
-// test commit 2
+
+// ! deleteCartProduct
+export const deleteCartProduct = async (req, res) => {
+
+	const { product } = req.body
+
+	const { _id, quantity, custom_fields } = product // coming FRONT product
+	const frontProd = { _id, quantity, custom_fields }
+
+	const _user = await user.find({ _id: req?.userId })
+	const userCart = _user?.[0].cart
+
+	await userCart.map((prod, ind) => {
+		const { _id, quantity, custom_fields } = prod // DB user.cart product
+		const DBprod = { _id, quantity, custom_fields }
+		if (JSON.stringify(frontProd) === JSON.stringify(DBprod)) {
+			userCart.splice(ind, 1) // delete one product from tempCart
+		}
+	})
+
+	await user.findOneAndUpdate(
+		{ _id: req?.userId },
+		{ $set: { cart: userCart } } // replace old cart with new cart (without one product)
+	)
+
+	res.json({ ok: true })
+}
