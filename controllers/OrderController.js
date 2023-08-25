@@ -32,12 +32,18 @@ export const createStripePopup = async (req, res) => {
 		let additionalName = ""
 		let additionalPrice = 0
 		prod.custom_field_names.map(customFieldName => {
-			// additionalName
-			const name = JSON.parse(prod?.[customFieldName]).name
-			additionalName += " " + name
-			// additionalPrice
-			const price = JSON.parse(prod?.[customFieldName]).price
-			additionalPrice += Number(price)
+			if (prod?.[customFieldName].includes("{")) { // OBJECT: prevent parsing strings (only fullProdForm selects give obj with {name, price})
+				// additionalName
+				const name = customFieldName + ": " + JSON.parse(prod?.[customFieldName]).name + ";"
+				additionalName += " " + name
+				// additionalPrice
+				const price = JSON.parse(prod?.[customFieldName]).price
+				additionalPrice += Number(price)
+			} else { // STRING: input type text
+				// additionalName
+				const name = customFieldName + ": " + prod?.[customFieldName] + ";"
+				additionalName += " " + name
+			}
 		})
 		// dbProdPrice
 		const dbProdPrice = dbProdsWithDups[prodInd].price
