@@ -20,44 +20,34 @@ export const createStripePopup = async (req, res) => {
 	const _user = await user.find({ _id: userId })
 	const userCart = _user?.[0]?.cart
 
-	const frontCustomFields = []
-	userCart?.map(prod => prod.custom_field_names?.map(fieldName => frontCustomFields.push({ name: fieldName, option: JSON.parse(prod[fieldName]).name })))
+	let prodIds = [] // prod ids to find in db
+	userCart?.map(prod => prodIds.push(prod._id))
+	const dbProds = await product.find({ _id: { $in: prodIds } }) // dbProds but give one prod; and userCart has 2 prods even if it's instance of 1 prod
+	const dbProdsWithDups = [] // make so `userCart` and `dbProdsWithDups` have same length; eg: userCart.len(2), dbProds.len(1) = NOTCorrect, dbProdsWithDups.len(2) = Correct
+	prodIds?.map(prodId => dbProds?.map(dbProd => prodId === String(dbProd._id) && dbProdsWithDups.push(dbProd)))
 
-	// TODO cur. works for 2 diff prods.
-	let prodIds = []
-	let prodQuantity = []
-
-	userCart?.map(prod => {
-		prodIds.push(prod._id)
-		prodQuantity.push(prod.quantity)
-	})
-
-	const DBProds = await product.find({ _id: { $in: prodIds } })
-
-	const prices = []
-	const titles = []
-
-	DBProds?.map(DBProd => {
+	const allProds = []
+	userCart.map((prod, prodInd) => {
+		let oneProd = {}
+		let additionalName = ""
 		let additionalPrice = 0
-		let additionalOptionNames = ""
-		let price = 0
-		let title = ""
-
-		DBProd.custom_fields?.map(dbCustomField => {
-			frontCustomFields.map(frontCustomField => frontCustomField.name === dbCustomField.name && dbCustomField.options?.map(dbCustomFieldOption => {
-				if (dbCustomFieldOption) {
-					if (dbCustomFieldOption.name === frontCustomField.option) {
-						additionalPrice += Number(dbCustomFieldOption.price)
-						additionalOptionNames += " " + dbCustomFieldOption.name
-					}
-				}
-			})
-			)
-			price = (Number(DBProd.price) + Number(additionalPrice)) * 100
-			title = DBProd.title + additionalOptionNames
+		prod.custom_field_names.map(customFieldName => {
+			// additionalName
+			const name = JSON.parse(prod?.[customFieldName]).name
+			additionalName += " " + name
+			// additionalPrice
+			const price = JSON.parse(prod?.[customFieldName]).price
+			additionalPrice += Number(price)
 		})
-		prices.push(price)
-		titles.push(title)
+		// dbProdPrice
+		const dbProdPrice = dbProdsWithDups[prodInd].price
+		const finalPrice = (Number(dbProdPrice) + Number(additionalPrice)) * 100
+		// dbProdTitle
+		const dbProdTitle = dbProdsWithDups[prodInd].title
+		const finalName = dbProdTitle + " " + additionalName
+		// make 1 prod
+		oneProd = { ...oneProd, name: finalName, price: finalPrice, quantity: prod.quantity }
+		allProds.push(oneProd)
 	})
 
 	try {
@@ -73,16 +63,16 @@ export const createStripePopup = async (req, res) => {
 		const session = await stripe.checkout.sessions.create({
 			payment_method_types: ["card"],
 			mode: "payment",
-			line_items: titles.map((title, ind) => {
+			line_items: allProds.map(({ name, price, quantity }) => {
 				return {
 					price_data: {
 						currency: "usd",
 						product_data: {
-							name: title,
+							name: name,
 						},
-						unit_amount: prices[ind],
+						unit_amount: price,
 					},
-					quantity: prodQuantity[ind],
+					quantity: quantity,
 				}
 			}),
 			success_url: `${process.env.CLIENT_URL}/verifyOrderToken/${orderToken}`,
