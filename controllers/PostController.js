@@ -254,3 +254,19 @@ export const deleteCartProduct = async (req, res) => {
 
 	res.json({ ok: true })
 }
+
+// ! randomPosts
+export const randomPosts = async (req, res) => {
+
+	const { type } = req.body
+
+	const posts = await eval(type).find({})
+	const randNums = []
+	for (let i = 0; i < 19; i++) { // get about 10 rand nums without dups
+		const randNum = Math.floor(Math.random() * posts.length)
+		!randNums.includes(randNum) && randNums.push(randNum)
+	}
+	const randomPosts = randNums.map(num => posts[num])
+
+	res.json(randomPosts)
+}
