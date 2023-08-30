@@ -239,11 +239,15 @@ export const deleteCartProduct = async (req, res) => {
 	const _user = await user.find({ _id: req?.userId })
 	const userCart = _user?.[0].cart
 
+	let oneTime = 0
+
 	await userCart.map((prod, ind) => {
+		if (oneTime > 0) return // prevent deleting exactly same products (only delete one at a time)
 		const { _id, quantity, custom_fields } = prod // DB user.cart product
 		const DBprod = { _id, quantity, custom_fields }
 		if (JSON.stringify(frontProd) === JSON.stringify(DBprod)) {
 			userCart.splice(ind, 1) // delete one product from tempCart
+			oneTime += 1
 		}
 	})
 
