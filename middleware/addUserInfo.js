@@ -42,3 +42,16 @@ export const addUserInfo = async (req, res, next) => {
 		console.log(err)
 	}
 }
+
+export const addUserIdOptional = async (req, res, next) => {
+
+	const token = req.headers.authorization
+
+	if (token) {
+		const decoded = jwt.verify(token, process.env.JWT)
+		req.userId = decoded
+	}
+
+	next()
+
+}
