@@ -35,7 +35,7 @@ export const test = async (req, res) => {
 		const randomCat = Math.floor(Math.random() * cats.length)
 
 		// ! testProd
-		const testProd = { tags: [cats[randomCat], cats?.[randomCat + 1]], sizes: [`test size ${i}`], colors: [`test color ${i}`], characteristicNames: [`test char name ${i}`], characteristicValues: [`test char value ${i}`], informationNames: [`test info name ${i}`], informationValues: [`test info value ${i}`], img: [`https://picsum.photos/800/600?random=${i}`, `https://picsum.photos/800/600?random=${i + 1}`, `https://picsum.photos/800/600?random=${i + 2}`], title: `test prod ${i}`, brand: `test brand ${i}`, price: randomNum, text: `test text ${i}`, custom_field: `test custom field ${i}`, type: `product`, userId: `64da3136ddb6d8c658bc8379` }
+		const testProd = { tags: [cats[randomCat], cats?.[randomCat + 1]], characteristicNames: [`test char name ${i}`], characteristicValues: [`test char value ${i}`], informationNames: [`test info name ${i}`], informationValues: [`test info value ${i}`], img: [`https://picsum.photos/800/600?random=${i}`, `https://picsum.photos/800/600?random=${i + 1}`, `https://picsum.photos/800/600?random=${i + 2}`], title: `test prod ${i}`, brand: `test brand ${i}`, price: randomNum, text: `test text ${i}`, custom_field: `test custom field ${i}`, type: `product`, userId: `64da3136ddb6d8c658bc8379` }
 		// ? testProd
 
 		const doc = await product({ ...testProd })
@@ -120,7 +120,30 @@ export const fullPost = async (req, res) => {
 	// !! TODO possible probs: if I get order via fullPost it's updated on every visit; order uses updatedAt to show when the track was sent, assuming order is only updated 1 time, when track is sent
 	const fullPost = await eval(type).findOneAndUpdate({ _id }, { $inc: { views: 1 } })
 
+	const _user = await user.find({ _id: req.userId })
+	const _userViewed = _user?.[0]?.viewed
+
+	// TODO !!!
+	// add product to viewed if it's not there yet
+	if (!_userViewed?.includes(_id) && type === "product") {
+		await user.findOneAndUpdate({ _id: req.userId }, { $push: { viewed: _id } })
+	}
+
 	res.json(fullPost)
+}
+
+// ! viewedPosts
+export const viewedPosts = async (req, res) => {
+
+	// type=product/article/comment/review...
+	const { type } = req.body
+
+	const _user = await user.find({ _id: req.userId })
+	const _userViewed = _user?.[0]?.viewed
+
+	const viewedPosts = await eval(type).find({ _id: { $in: _userViewed } })
+
+	res.json(viewedPosts)
 }
 
 // ! editPost
