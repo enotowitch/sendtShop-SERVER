@@ -121,12 +121,12 @@ export const fullPost = async (req, res) => {
 	const fullPost = await eval(type).findOneAndUpdate({ _id }, { $inc: { views: 1 } })
 
 	const _user = await user.find({ _id: req.userId })
-	const _userViewed = _user?.[0]?.viewed
+	const _userViewed = _user?.[0]?.[type + "Viewed"]
 
 	// TODO !!!
 	// add product to viewed if it's not there yet
-	if (!_userViewed?.includes(_id) && type === "product") {
-		await user.findOneAndUpdate({ _id: req.userId }, { $push: { viewed: _id } })
+	if (!_userViewed?.includes(_id)) {
+		await user.findOneAndUpdate({ _id: req.userId }, { $push: { [type + "Viewed"]: _id } })
 	}
 
 	res.json(fullPost)
@@ -139,7 +139,8 @@ export const viewedPosts = async (req, res) => {
 	const { type } = req.body
 
 	const _user = await user.find({ _id: req.userId })
-	const _userViewed = _user?.[0]?.viewed
+	// eg:                           articleViewed/productViewed
+	const _userViewed = _user?.[0]?.[type + "Viewed"]
 
 	const viewedPosts = await eval(type).find({ _id: { $in: _userViewed } })
 
