@@ -26,8 +26,14 @@ export const createStripePopup = async (req, res) => {
 	const dbProdsWithDups = [] // make so `userCart` and `dbProdsWithDups` have same length; eg: userCart.len(2), dbProds.len(1) = NOTCorrect, dbProdsWithDups.len(2) = Correct
 	prodIds?.map(prodId => dbProds?.map(dbProd => prodId === String(dbProd._id) && dbProdsWithDups.push(dbProd)))
 
+	// when admin deletes prod it can remain in user's cart => solution: map userCartWithoutDeletedProds
+	const userCartWithoutDeletedProds = []
+	userCart?.map(userCartProd => {
+		dbProdsWithDups.map(dbProd => userCartProd._id === String(dbProd._id) && userCartWithoutDeletedProds.push(userCartProd))
+	})
+
 	const allProds = []
-	userCart.map((prod, prodInd) => {
+	userCartWithoutDeletedProds.map((prod, prodInd) => {
 		let oneProd = {}
 		let additionalName = ""
 		let additionalPrice = 0
