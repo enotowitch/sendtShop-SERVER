@@ -38,7 +38,7 @@ export const createStripePopup = async (req, res) => {
 		let additionalName = ""
 		let additionalPrice = 0
 		prod.custom_field_names.map(customFieldName => {
-			if (prod?.[customFieldName].includes("{")) { // OBJECT: prevent parsing strings (only fullProdForm selects give obj with {name, price})
+			if (prod?.[customFieldName] && prod?.[customFieldName].includes("{")) { // OBJECT: prevent parsing strings (only fullProdForm selects give obj with {name, price})
 				// additionalName
 				const name = customFieldName + ": " + JSON.parse(prod?.[customFieldName]).name + ";"
 				additionalName += " " + name

@@ -120,17 +120,18 @@ export const fullPost = async (req, res) => {
 	// !! TODO possible probs: if I get order via fullPost it's updated on every visit; order uses updatedAt to show when the track was sent, assuming order is only updated 1 time, when track is sent
 	const fullPost = await eval(type).findOneAndUpdate({ _id }, { $inc: { views: 1 } })
 
-	if (req.userId) { // add product to viewed
+	// ! add product/article to viewed
+	if (req.userId && (type === "product" || type === "article")) {
 		const _user = await user.find({ _id: req.userId })
 		const _userViewed = _user?.[0]?.[type + "Viewed"]
 
-		// add product to viewed if it's not there yet
+		// add product/article to viewed if it's not there yet
 		if (!_userViewed?.includes(_id)) {
 			// eg:                                                      user: articleViewed/productViewed
 			await user.findOneAndUpdate({ _id: req.userId }, { $push: { [type + "Viewed"]: _id } })
 		}
 	}
-
+	// ? add product/article to viewed
 
 	res.json(fullPost)
 }
