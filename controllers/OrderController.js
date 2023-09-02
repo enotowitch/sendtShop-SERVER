@@ -37,7 +37,7 @@ export const createStripePopup = async (req, res) => {
 	})
 
 	const allProds = []
-	userCartWithoutDeletedProds.map((prod, prodInd) => {
+	userCart.map((prod, prodInd) => {
 		let oneProd = {}
 		let additionalName = ""
 		let additionalPrice = 0
