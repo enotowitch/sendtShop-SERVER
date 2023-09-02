@@ -28,8 +28,12 @@ export const createStripePopup = async (req, res) => {
 
 	// when admin deletes prod it can remain in user's cart => solution: map userCartWithoutDeletedProds
 	const userCartWithoutDeletedProds = []
-	userCart?.map(userCartProd => {
-		dbProdsWithDups.map(dbProd => userCartProd._id === String(dbProd._id) && userCartWithoutDeletedProds.push(userCartProd))
+	userCart?.filter(userCartProd => {
+		dbProdsWithDups.map(dbProdsWithDupsProd => {
+			if (userCartProd._id === String(dbProdsWithDupsProd._id)) {
+				userCartWithoutDeletedProds.push(userCartProd)
+			}
+		})
 	})
 
 	const allProds = []
@@ -56,9 +60,9 @@ export const createStripePopup = async (req, res) => {
 		const finalPrice = (Number(dbProdPrice) + Number(additionalPrice)) * 100
 		// dbProdTitle
 		const dbProdTitle = dbProdsWithDups[prodInd].title
-		const finalName = dbProdTitle + " " + additionalName
+		const finalName = dbProdTitle.toUpperCase() + ": " + additionalName
 		// make 1 prod
-		oneProd = { ...oneProd, name: finalName, price: finalPrice, quantity: prod.quantity }
+		oneProd = { ...oneProd, name: finalName, price: finalPrice.toFixed(0), quantity: Number(prod.quantity) }
 		allProds.push(oneProd)
 	})
 
