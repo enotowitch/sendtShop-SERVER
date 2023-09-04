@@ -20,24 +20,27 @@ export const createStripePopup = async (req, res) => {
 	const _user = await user.find({ _id: userId })
 	const userCart = _user?.[0]?.cart
 
+	// make user cart without prods that were deleted by admin
+	const userCartWithoutDeleted = []
+	const allDbProds = await product.find({ status: { $ne: "deleted" } })
+	userCart.map(userCartProd => allDbProds.map(allProd => {
+		if (userCartProd._id === String(allProd._id)) {
+			userCartWithoutDeleted.push(userCartProd)
+		}
+	}))
+
+	// fix user cart: delete not existing prods
+	await user.findOneAndUpdate({ _id: userId }, { cart: userCartWithoutDeleted })
+
 	let prodIds = [] // prod ids to find in db
-	userCart?.map(prod => prodIds.push(prod._id))
-	const dbProds = await product.find({ _id: { $in: prodIds } }) // dbProds but give one prod; and userCart has 2 prods even if it's instance of 1 prod
+	userCartWithoutDeleted?.map(prod => prodIds.push(prod._id))
+	const dbProds = await product.find({ _id: { $in: prodIds }, status: { $ne: "deleted" } }) // dbProds but give one prod; and userCart has 2 prods even if it's instance of 1 prod
 	const dbProdsWithDups = [] // make so `userCart` and `dbProdsWithDups` have same length; eg: userCart.len(2), dbProds.len(1) = NOTCorrect, dbProdsWithDups.len(2) = Correct
 	prodIds?.map(prodId => dbProds?.map(dbProd => prodId === String(dbProd._id) && dbProdsWithDups.push(dbProd)))
 
-	// when admin deletes prod it can remain in user's cart => solution: map userCartWithoutDeletedProds
-	const userCartWithoutDeletedProds = []
-	userCart?.filter(userCartProd => {
-		dbProdsWithDups.map(dbProdsWithDupsProd => {
-			if (userCartProd._id === String(dbProdsWithDupsProd._id)) {
-				userCartWithoutDeletedProds.push(userCartProd)
-			}
-		})
-	})
 
 	const allProds = []
-	userCartWithoutDeletedProds.map((prod, prodInd) => {
+	userCartWithoutDeleted.map((prod, prodInd) => {
 		let oneProd = {}
 		let additionalName = ""
 		let additionalPrice = 0
