@@ -48,15 +48,21 @@ export const test = async (req, res) => {
 // ! getAllPosts
 export const getAllPosts = async (req, res) => {
 
+	let skipStatusDeletedPosts = { "status": { $ne: "deleted" } }
 	// type=product/article/comment/review...
 	// field=tags/likes/...
-	const { type, field } = req.body
+	const { type, field, showDeleted } = req.body
+
+	// !!
+	if (showDeleted === true) { // in order I need all products (even with "deleted" status)
+		skipStatusDeletedPosts = {} // find all products if showDeleted === true
+	}
 
 	let response
-	response = await eval(type).find({}).sort({ createdAt: "desc" }) // eg: all products
+	response = await eval(type).find(skipStatusDeletedPosts).sort({ createdAt: "desc" }) // eg: all products
 	if (field) {
 		let fieldsArr = []
-		response = await eval(type).find({})
+		response = await eval(type).find(skipStatusDeletedPosts)
 		response = response.map(post => post?.[field]?.map(tag => !fieldsArr.includes(tag) && fieldsArr.push(tag)))
 		response = fieldsArr // eg: product.tags (without dups)
 	}
@@ -79,22 +85,23 @@ export const filterPosts = async (req, res) => {
 
 	let filtered
 	const regExp = { $regex: text?.toString(), $options: 'i' }
+	let skipStatusDeletedPosts = { "status": { $ne: "deleted" } }
 
 	if (tag && !text) {
 		console.log(111)
-		filtered = await eval(type).find({ tags: tag }).skip(skip).limit(12).sort({ [sortField]: sortType })
+		filtered = await eval(type).find({ tags: tag, ...skipStatusDeletedPosts }).skip(skip).limit(12).sort({ [sortField]: sortType })
 	}
 	if (!tag && text) {
 		console.log(222)
-		filtered = await eval(type).find({ $or: [{ title: regExp }, { text: regExp }] }).skip(skip).limit(12).sort({ [sortField]: sortType })
+		filtered = await eval(type).find({ $or: [{ title: regExp }, { text: regExp }], ...skipStatusDeletedPosts }).skip(skip).limit(12).sort({ [sortField]: sortType })
 	}
 	if (tag && text) {
 		console.log(333)
-		filtered = await eval(type).find({ tags: tag, $or: [{ title: regExp }, { text: regExp }] }).skip(skip).limit(12).sort({ [sortField]: sortType })
+		filtered = await eval(type).find({ tags: tag, $or: [{ title: regExp }, { text: regExp }], ...skipStatusDeletedPosts }).skip(skip).limit(12).sort({ [sortField]: sortType })
 	}
 	if (!tag && !text) { // no search = return all posts
 		console.log(444)
-		filtered = await eval(type).find({}).skip(skip).limit(12).sort({ [sortField]: sortType })
+		filtered = await eval(type).find(skipStatusDeletedPosts).skip(skip).limit(12).sort({ [sortField]: sortType })
 	}
 
 	res.json(filtered)
@@ -106,7 +113,7 @@ export const deletePost = async (req, res) => {
 	// type=product/article/comment/review...
 	const { type, _id } = req.body
 
-	await eval(type).findOneAndDelete({ _id })
+	await eval(type).findOneAndUpdate({ _id }, { status: "deleted" })
 
 	res.json({ ok: true })
 }
@@ -146,7 +153,8 @@ export const viewedPosts = async (req, res) => {
 	// eg:                           user: articleViewed/productViewed
 	const _userViewed = _user?.[0]?.[type + "Viewed"]
 
-	const viewedPosts = await eval(type).find({ _id: { $in: _userViewed } })
+	let skipStatusDeletedPosts = { "status": { $ne: "deleted" } }
+	const viewedPosts = await eval(type).find({ _id: { $in: _userViewed }, ...skipStatusDeletedPosts })
 
 	res.json(viewedPosts)
 }
@@ -292,7 +300,8 @@ export const randomPosts = async (req, res) => {
 
 	const { type } = req.body
 
-	const posts = await eval(type).find({})
+	let skipStatusDeletedPosts = { "status": { $ne: "deleted" } }
+	const posts = await eval(type).find(skipStatusDeletedPosts)
 	const randNums = []
 	for (let i = 0; i < 19; i++) { // get about 10 rand nums without dups
 		const randNum = Math.floor(Math.random() * posts.length)

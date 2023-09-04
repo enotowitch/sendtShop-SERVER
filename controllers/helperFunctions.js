@@ -18,7 +18,7 @@ export const findUserById = async (userId) => {
 	} else {
 		isAdmin = false
 	}
-	user.isAdmin = isAdmin
+	user && (user.isAdmin = isAdmin)
 
 	return user
 }
