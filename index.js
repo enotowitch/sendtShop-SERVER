@@ -32,6 +32,7 @@ app.post("/test", PostController.test) // TODO delete
 app.post("/getAllPosts", PostController.getAllPosts)
 app.post("/filterPosts", PostController.filterPosts)
 app.post("/deletePost", PostController.deletePost)
+app.post("/unHidePost", PostController.unHidePost)
 app.post("/fullPost", addUserIdOptional, PostController.fullPost)
 app.post("/viewedPosts", addUserId, PostController.viewedPosts)
 app.post("/editPost", PostController.editPost)

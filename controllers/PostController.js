@@ -120,6 +120,15 @@ export const deletePost = async (req, res) => {
 	res.json({ ok: true })
 }
 
+// ! unHidePost
+export const unHidePost = async (req, res) => {
+
+	// type=product/article/comment/review...
+	const { type, _id } = req.body
+	await eval(type).findOneAndUpdate({ _id }, { status: "" })
+	res.json({ ok: true })
+}
+
 // ! fullPost
 export const fullPost = async (req, res) => {
 
