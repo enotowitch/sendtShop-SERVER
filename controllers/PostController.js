@@ -59,7 +59,9 @@ export const getAllPosts = async (req, res) => {
 	}
 
 	let response
-	response = await eval(type).find(skipStatusDeletedPosts).sort({ createdAt: "desc" }) // eg: all products
+	if (!field) {
+		response = await eval(type).find(skipStatusDeletedPosts).sort({ createdAt: "desc" }) // eg: all products
+	}
 	if (field) {
 		let fieldsArr = []
 		response = await eval(type).find(skipStatusDeletedPosts)
@@ -310,4 +312,12 @@ export const randomPosts = async (req, res) => {
 	const randomPosts = randNums.map(num => posts[num])
 
 	res.json(randomPosts)
+}
+
+// ! hiddenPosts
+export const hiddenPosts = async (req, res) => {
+
+	const { type } = req.body
+	const hiddenPosts = await eval(type).find({ status: "deleted" })
+	res.json(hiddenPosts)
 }

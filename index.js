@@ -38,6 +38,7 @@ app.post("/editPost", PostController.editPost)
 app.post("/pullPush", addUserId, PostController.pullPush)
 app.post("/deleteCartProduct", addUserId, PostController.deleteCartProduct)
 app.post("/randomPosts", PostController.randomPosts)
+app.post("/hiddenPosts", PostController.hiddenPosts)
 // ? posts
 
 // ! order
