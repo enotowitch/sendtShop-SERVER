@@ -195,7 +195,7 @@ export const viewedPosts = async (req, res) => {
 	const _userViewed = _user?.[0]?.[type + "Viewed"]
 
 	let skipStatusDeletedPosts = { "status": { $ne: "deleted" } }
-	const viewedPosts = await eval(type).find({ _id: { $in: _userViewed }, ...skipStatusDeletedPosts })
+	const viewedPosts = await eval(type).find({ _id: { $in: _userViewed }, ...skipStatusDeletedPosts }).limit(20)
 
 	res.json(viewedPosts)
 }
