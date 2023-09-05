@@ -356,7 +356,7 @@ export const randomPosts = async (req, res) => {
 // ! hiddenPosts
 export const hiddenPosts = async (req, res) => {
 
-	const { type } = req.body
-	const hiddenPosts = await eval(type).find({ status: "deleted" })
+	const { type, skip } = req.body
+	const hiddenPosts = await eval(type).find({ status: "deleted" }).skip(skip).limit(12)
 	res.json(hiddenPosts)
 }
