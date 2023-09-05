@@ -115,6 +115,17 @@ export const deletePost = async (req, res) => {
 	// type=product/article/comment/review...
 	const { type, _id } = req.body
 
+	await eval(type).findOneAndDelete({ _id })
+
+	res.json({ ok: true })
+}
+
+// ! hidePost
+export const hidePost = async (req, res) => {
+
+	// type=product/article/comment/review...
+	const { type, _id } = req.body
+
 	await eval(type).findOneAndUpdate({ _id }, { status: "deleted" })
 
 	res.json({ ok: true })
