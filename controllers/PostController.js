@@ -45,6 +45,25 @@ export const test = async (req, res) => {
 	res.json({ ok: true })
 }
 
+// ! testArticles
+export const testArticles = async (req, res) => {
+
+	for (let i = 0; i <= 100; i++) {
+
+		const cats = ["new", "featured", "hot", "sale"]
+		const randomCat = Math.floor(Math.random() * cats.length)
+
+		// ! testArticle
+		const testArticle = { tags: [cats[randomCat], cats?.[randomCat + 1]], title: `test article ${i}`, type: `article`, textEditorValue: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.Lorem Ipsum has been the industry's standard dummy text ever since the  Lorem Ipsum is simply dummy text of the printing and typesetting industry.Lorem Ipsum has been the industry's standard dummy text ever since the Lorem Ipsum is simply dummy text of the printing and  typesetting industry  ![](https://media.istockphoto.com/id/1226902990/vector/mega-sale-banner-special-offer-and-sale-shop-now-or-this-weekend-only-up-to-50-or-60-or-70.jpg?s=612x612&w=0&k=20&c=EphmtGwqWwit08k14dSM7X4ALGOB_3vZD_cR5jI623Q=) [test link](https://www.google.com/)  Lorem Ipsum is simply dummy text of the printing and typesetting industry.Lorem Ipsum has been the industry's standard dummy text ever since the  Lorem Ipsum is simply dummy text of the printing and typesetting industry.Lorem Ipsum has been the industry's standard dummy text ever since the Lorem Ipsum is simply dummy text of the printing and" }
+		// ? testArticle
+
+		const doc = await article({ ...testArticle })
+		await doc.save()
+	}
+
+	res.json({ ok: true })
+}
+
 // ! getAllPosts
 export const getAllPosts = async (req, res) => {
 
