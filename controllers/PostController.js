@@ -360,3 +360,17 @@ export const hiddenPosts = async (req, res) => {
 	const hiddenPosts = await eval(type).find({ status: "deleted" }).skip(skip).limit(12)
 	res.json(hiddenPosts)
 }
+
+// ! likedPosts
+export const likedPosts = async (req, res) => {
+
+	const { type, skip } = req.body
+	let skipStatusDeletedPosts = { "status": { $ne: "deleted" } }
+
+	const _user = await user.find({ _id: req.userId })
+	const userLikes = _user?.[0]?.likes
+
+	const likedPosts = await eval(type).find({ _id: { $in: userLikes }, ...skipStatusDeletedPosts }).skip(skip).limit(12)
+
+	res.json(likedPosts)
+}
