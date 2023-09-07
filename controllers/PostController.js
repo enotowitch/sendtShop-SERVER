@@ -35,7 +35,7 @@ export const test = async (req, res) => {
 		const randomCat = Math.floor(Math.random() * cats.length)
 
 		// ! testProd
-		const testProd = { tags: [cats[randomCat], cats?.[randomCat + 1]], characteristicNames: [`test char name ${i}`], characteristicValues: [`test char value ${i}`], informationNames: [`test info name ${i}`], informationValues: [`test info value ${i}`], img: [`https://picsum.photos/800/600?random=${i}`, `https://picsum.photos/800/600?random=${i + 1}`, `https://picsum.photos/800/600?random=${i + 2}`], title: `test prod ${i}`, brand: `test brand ${i}`, price: randomNum, text: `test text ${i}`, custom_field: `test custom field ${i}`, type: `product`, userId: `64da3136ddb6d8c658bc8379` }
+		const testProd = { tags: [cats[randomCat], cats?.[randomCat + 1]], characteristicNames: [`test char name ${i}`], characteristicValues: [`test char value ${i}`], informationNames: [`test info name ${i}`], informationValues: [`test info value ${i}`], img: [`https://picsum.photos/800/600?random=${i}`, `https://picsum.photos/800/600?random=${i + 1}`, `https://picsum.photos/800/600?random=${i + 2}`], title: `test prod ${i}`, brand: `test brand ${i}`, price: (1 + randomNum).toFixed(2), text: `test text ${i}`, custom_field: `test custom field ${i}`, type: `product`, userId: `64da3136ddb6d8c658bc8379` }
 		// ? testProd
 
 		const doc = await product({ ...testProd })
@@ -134,7 +134,7 @@ export const deletePost = async (req, res) => {
 	// type=product/article/comment/review...
 	const { type, _id } = req.body
 
-	await eval(type).findOneAndDelete({ _id })
+	await eval(type).findOneAndUpdate({ _id }, { status: "deleted" })
 
 	res.json({ ok: true })
 }
@@ -145,7 +145,7 @@ export const hidePost = async (req, res) => {
 	// type=product/article/comment/review...
 	const { type, _id } = req.body
 
-	await eval(type).findOneAndUpdate({ _id }, { status: "deleted" })
+	await eval(type).findOneAndUpdate({ _id }, { status: "hidden" })
 
 	res.json({ ok: true })
 }
@@ -357,7 +357,7 @@ export const randomPosts = async (req, res) => {
 export const hiddenPosts = async (req, res) => {
 
 	const { type, skip } = req.body
-	const hiddenPosts = await eval(type).find({ status: "deleted" }).skip(skip).limit(12)
+	const hiddenPosts = await eval(type).find({ status: "hidden" }).skip(skip).limit(12)
 	res.json(hiddenPosts)
 }
 
