@@ -22,7 +22,7 @@ export const createStripePopup = async (req, res) => {
 
 	// make user cart without prods that were deleted by admin
 	const userCartWithoutDeleted = []
-	const allDbProds = await product.find({ status: { $ne: "deleted" } })
+	const allDbProds = await product.find({ status: { $nin: ["hidden", "deleted"] } })
 	userCart.map(userCartProd => allDbProds.map(allProd => {
 		if (userCartProd._id === String(allProd._id)) {
 			userCartWithoutDeleted.push(userCartProd)
