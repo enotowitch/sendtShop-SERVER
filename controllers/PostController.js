@@ -67,7 +67,7 @@ export const testArticles = async (req, res) => {
 // ! getAllPosts
 export const getAllPosts = async (req, res) => {
 
-	let skipStatusDeletedPosts = { "status": { $ne: "deleted" } }
+	let skipStatusDeletedPosts = { "status": { $nin: ["deleted", "hidden"] } }
 	// type=product/article/comment/review...
 	// field=tags/likes/...
 	const { type, field, showDeleted } = req.body
@@ -106,7 +106,7 @@ export const filterPosts = async (req, res) => {
 
 	let filtered
 	const regExp = { $regex: text?.toString(), $options: 'i' }
-	let skipStatusDeletedPosts = { "status": { $ne: "deleted" } }
+	let skipStatusDeletedPosts = { "status": { $nin: ["deleted", "hidden"] } }
 
 	if (tag && !text) {
 		console.log(111)
@@ -194,7 +194,7 @@ export const viewedPosts = async (req, res) => {
 	// eg:                           user: articleViewed/productViewed
 	const _userViewed = _user?.[0]?.[type + "Viewed"]
 
-	let skipStatusDeletedPosts = { "status": { $ne: "deleted" } }
+	let skipStatusDeletedPosts = { "status": { $nin: ["deleted", "hidden"] } }
 	const viewedPosts = await eval(type).find({ _id: { $in: _userViewed }, ...skipStatusDeletedPosts }).limit(20)
 
 	res.json(viewedPosts)
@@ -341,7 +341,7 @@ export const randomPosts = async (req, res) => {
 
 	const { type } = req.body
 
-	let skipStatusDeletedPosts = { "status": { $ne: "deleted" } }
+	let skipStatusDeletedPosts = { "status": { $nin: ["deleted", "hidden"] } }
 	const posts = await eval(type).find(skipStatusDeletedPosts)
 	const randNums = []
 	for (let i = 0; i < 19; i++) { // get about 10 rand nums without dups
@@ -365,7 +365,7 @@ export const hiddenPosts = async (req, res) => {
 export const likedPosts = async (req, res) => {
 
 	const { type, skip } = req.body
-	let skipStatusDeletedPosts = { "status": { $ne: "deleted" } }
+	let skipStatusDeletedPosts = { "status": { $nin: ["deleted", "hidden"] } }
 
 	const _user = await user.find({ _id: req.userId })
 	const userLikes = _user?.[0]?.likes
