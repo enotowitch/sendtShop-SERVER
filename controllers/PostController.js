@@ -308,21 +308,34 @@ export const pullPush = async (req, res) => {
 // ! deleteCartProduct
 export const deleteCartProduct = async (req, res) => {
 
-	const { product } = req.body
+	const { product: prodToDelete } = req.body
 
-	const { _id, quantity, custom_fields } = product // coming FRONT product
-	const frontProd = { _id, quantity, custom_fields }
+	const prodToDeleteCustomFieldNames = Object.keys(prodToDelete)?.map((prodKey, prodInd) => prodKey === "custom_field_names" && Object.values(prodToDelete)[prodInd]).filter(removeFalse => removeFalse).flat()
+	const keysToKeep = [...prodToDeleteCustomFieldNames, "_id", "quantity"] // eg: ["color", "size", "_id", "quantity"]
+
+	// make new objs to compare `front product to delete` & `db product to delete` => then write original objs
+	function compareProdObj(compareProd) {
+		const compareObj = {}
+		Object.keys(compareProd)?.map((prodKey, prodInd) => { // eg: keep keys: color, size, _id, quantity
+			if (keysToKeep.includes(prodKey)) {
+				compareObj[prodKey] = Object.values(compareProd)[prodInd]
+			}
+		})
+		return compareObj
+	}
+
+	const prodToDeleteCompare = compareProdObj(prodToDelete)
 
 	const _user = await user.find({ _id: req?.userId })
 	const userCart = _user?.[0].cart
 
 	let oneTime = 0
 
-	await userCart.map((prod, ind) => {
+	userCart.map((dbUserCartProd, ind) => {
 		if (oneTime > 0) return // prevent deleting exactly same products (only delete one at a time)
-		const { _id, quantity, custom_fields } = prod // DB user.cart product
-		const DBprod = { _id, quantity, custom_fields }
-		if (JSON.stringify(frontProd) === JSON.stringify(DBprod)) {
+		const dbUserCartProdCompare = compareProdObj(dbUserCartProd)
+		// compare `front product to delete` & `db product to delete` => if matches => delete 
+		if (JSON.stringify(prodToDeleteCompare) === JSON.stringify(dbUserCartProdCompare)) {
 			userCart.splice(ind, 1) // delete one product from tempCart
 			oneTime += 1
 		}
@@ -341,8 +354,20 @@ export const randomPosts = async (req, res) => {
 
 	const { type } = req.body
 
+	let productViewed, likes
+	if (req?.userInfo) {
+		({ productViewed, likes } = req?.userInfo)
+	}
+
+
+	// prevent errors: make empty arr if no productViewed/likes
+	productViewed = productViewed ? productViewed : []
+	likes = likes ? likes : []
+
 	let skipStatusDeletedPosts = { "status": { $nin: ["deleted", "hidden"] } }
-	const posts = await eval(type).find(skipStatusDeletedPosts)
+	const skipViewedAndLikedPosts = { _id: { $nin: [...productViewed, ...likes] } }
+	const posts = await eval(type).find({ ...skipViewedAndLikedPosts, ...skipStatusDeletedPosts })
+
 	const randNums = []
 	for (let i = 0; i < 19; i++) { // get about 10 rand nums without dups
 		const randNum = Math.floor(Math.random() * posts.length)
@@ -350,7 +375,12 @@ export const randomPosts = async (req, res) => {
 	}
 	const randomPosts = randNums.map(num => posts[num])
 
-	res.json(randomPosts)
+	// prevent sending [null]
+	if (!randomPosts.includes(undefined)) {
+		return res.json(randomPosts)
+	} else {
+		return res.json(null)
+	}
 }
 
 // ! hiddenPosts
@@ -373,4 +403,38 @@ export const likedPosts = async (req, res) => {
 	const likedPosts = await eval(type).find({ _id: { $in: userLikes }, ...skipStatusDeletedPosts }).skip(skip).limit(12)
 
 	res.json(likedPosts)
+}
+
+// ! getActualUserCart
+export const getActualUserCart = async (req, res) => {
+
+	let cart, userId
+	if (req?.userInfo) {
+		({ cart, _id: userId } = req?.userInfo)
+	}
+	
+	const userCartProdIds = cart?.map(prod => prod._id)
+	const dbProds = await product.find({ _id: { $in: userCartProdIds }, status: { $nin: ["hidden", "deleted"] } })
+
+	// if admin changed some product option price => rewrite it at user's cart
+	// eg: {color: "red", price: "10"} => {color: "red", price: "25"}
+	const actualUserCart = []
+	cart?.map(cartProd => dbProds?.map(dbProd => {
+		if (cartProd._id === dbProd._id.toString()) {
+			cartProd.custom_field_names?.map(cartCustomFieldName => { // eg: color
+				if (cartProd?.[cartCustomFieldName].includes("{")) { // OBJECT: prevent parsing strings (only fullProdForm selects give obj with {name, price})
+					const cartCustomFieldOptionName = JSON.parse(cartProd?.[cartCustomFieldName])?.name // eg: red
+					const dbCustomField = dbProd.custom_fields?.find(dbCustomField => dbCustomField?.name === cartCustomFieldName)
+					const dbCustomFieldOption = dbCustomField?.options?.find(dbCustomFieldOption => dbCustomFieldOption?.name === cartCustomFieldOptionName)
+					cartProd[cartCustomFieldName] = JSON.stringify(dbCustomFieldOption) // eg: cartProd.color = `db new color: red price`
+				}
+			})
+			actualUserCart.push(cartProd)
+		}
+	}))
+
+	// update user cart
+	await user.findOneAndUpdate({ _id: userId }, { cart: actualUserCart })
+
+	res.json(actualUserCart)
 }

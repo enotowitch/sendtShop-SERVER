@@ -16,7 +16,7 @@ mongoose.connect(`mongodb+srv://enotowitch:qwerty123@cluster0.9tnodta.mongodb.ne
 
 // !! ROUTES
 // ! middleware
-import { addUserId, addUserInfo, addUserIdOptional } from "./middleware/addUserInfo.js" // TODO rename
+import { addUserId, addUserInfo, addUserIdOptional, addUserInfoOptional } from "./middleware/addUserInfo.js" // TODO rename
 
 // ! auth
 import * as UserController from "./controllers/UserController.js"
@@ -41,8 +41,9 @@ app.post("/viewedPosts", addUserId, PostController.viewedPosts)
 app.post("/editPost", PostController.editPost)
 app.post("/pullPush", addUserId, PostController.pullPush)
 app.post("/deleteCartProduct", addUserId, PostController.deleteCartProduct)
-app.post("/randomPosts", PostController.randomPosts)
+app.post("/randomPosts", addUserInfoOptional, PostController.randomPosts)
 app.post("/hiddenPosts", PostController.hiddenPosts)
+app.post("/getActualUserCart", addUserInfo, PostController.getActualUserCart)
 // ? posts
 
 // ! order

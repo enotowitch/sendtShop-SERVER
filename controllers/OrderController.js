@@ -5,7 +5,7 @@ const require = createRequire(import.meta.url);
 //
 import dotenv from 'dotenv'
 dotenv.config()
-const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY)
+const stripe = require("stripe")("sk_test_51NnOpJKr9QvcxosECJtxHYmrGiTAktBZQBKmkhgE8VWuhp8ItOhAjXPx9HcMMFqtDVMl9QdUFUdKCNh4Vt61kexe00Eaz2h9bi")
 import { signToken, verifyToken } from "./helperFunctions.js"
 import user from "../models/User.js"
 import product from "../models/Product.js"
@@ -40,44 +40,47 @@ export const createStripePopup = async (req, res) => {
 
 
 	const allProds = []
-	userCartWithoutDeleted.map((prod, prodInd) => {
+	userCartWithoutDeleted.map((cartProd, cartProdInd) => {
 		let oneProd = {}
 		let additionalName = ""
 		let additionalPrice = 0
-		prod.custom_field_names.map(customFieldName => {
-			if (prod?.[customFieldName] && prod?.[customFieldName].includes("{")) { // OBJECT: prevent parsing strings (only fullProdForm selects give obj with {name, price})
-				// additionalName
-				const name = customFieldName + ": " + JSON.parse(prod?.[customFieldName]).name + ";"
-				additionalName += " " + name
-				// additionalPrice
-				const price = JSON.parse(prod?.[customFieldName]).price
-				additionalPrice += Number(price)
+		cartProd.custom_field_names.map(customFieldName => {
+			if (cartProd?.[customFieldName] && cartProd?.[customFieldName].includes("{")) { // OBJECT: prevent parsing strings (only fullProdForm selects give obj with {name, price})
+				// additionalPrice from DB
+				const valueOfCustomField = JSON.parse(cartProd?.[customFieldName]).name // eg: (color): red (looking for red)
+				dbProdsWithDups[cartProdInd]?.custom_fields.map(option => {
+					let dbAdditaionalPrice
+					dbAdditaionalPrice = option.options.find(option => option?.name === valueOfCustomField)?.price
+					if (dbAdditaionalPrice) {
+						additionalPrice += Number(dbAdditaionalPrice)
+						// additionalName
+						const name = customFieldName + ": " + JSON.parse(cartProd?.[customFieldName]).name
+						additionalName += " " + name + " (" + "+$" + dbAdditaionalPrice + " each" + ")" + ";"
+					}
+				})
 			} else { // STRING: input type text
 				// additionalName
-				const name = customFieldName + ": " + prod?.[customFieldName] + ";"
+				const name = customFieldName + ": " + cartProd?.[customFieldName] + ";"
 				additionalName += " " + name
 			}
 		})
 		// dbProdPrice
-		const dbProdPrice = dbProdsWithDups[prodInd].price
+		const dbProdPrice = dbProdsWithDups[cartProdInd].price
 		const finalPrice = (Number(dbProdPrice) + Number(additionalPrice)) * 100
 		// dbProdTitle
-		const dbProdTitle = dbProdsWithDups[prodInd].title
+		const dbProdTitle = dbProdsWithDups[cartProdInd].title
 		const finalName = dbProdTitle.toUpperCase() + ": " + additionalName
-		// make 1 prod
-		oneProd = { ...oneProd, name: finalName, price: finalPrice.toFixed(0), quantity: Number(prod.quantity) }
+		// make 1 stripe Prod
+		oneProd = { ...oneProd, name: finalName, price: finalPrice.toFixed(0), quantity: Number(cartProd.quantity) }
 		allProds.push(oneProd)
 	})
 
 	try {
-
-		// TODO ??? if `session.payment_status = ok` then create order
-		// TODO write same HOW IT WORKS for autoAuth
 		// if user is redirected to "/verifyOrderToken" page, he gets orderToken, 
 		// then client makes app.post("/addOrder") from "/verifyOrderToken" page
 		// then if token verified => create order
 
-		const orderToken = await signToken("somethingRandomIfThisVerifiesEverythingIsOk")
+		const orderToken = await signToken(Date.now().toString()) // gen token, write it to order, only create order if this token not used (prevent order with token copied)
 
 		const session = await stripe.checkout.sessions.create({
 			payment_method_types: ["card"],
@@ -112,12 +115,20 @@ export const addOrder = async (req, res) => {
 	const { cart, shipping, email, _id } = req.userInfo // !!
 
 	const isVerifiedToken = await verifyToken(token)
-	if (isVerifiedToken) { // TODO: prevent dup orders on page reload if link copied
-		if (cart && shipping) {
+	if (isVerifiedToken) {
+		if (cart.length > 0) {
 			// if user cart on client loaded create order with order.cart(same as user's for easy show prods to admin, as prods are shown in user's cart)
-			const doc = await new order({ cart, shipping, email, userId: _id.toString() })
-			await doc.save()
-			res.json({ ok: true }) // !! wait till order is created
+			let checkTokenExist = await order.find({ token })
+			checkTokenExist = checkTokenExist?.[0]?.token
+			if (!checkTokenExist) { // ! prevent using same token for order creation: gen token, write it to order, only create order if this token not used (prevent order with token copied)
+				let number = await order.find() // order number
+				number = number.length + 1
+				const doc = await new order({ token, cart, shipping, email, userId: _id.toString(), number })
+				await doc.save()
+				return res.json({ ok: true, orderId: doc._id.toString() }) // uniq token: create order
+			} else {
+				return res.json({ ok: false }) // token was copied/order already exists
+			}
 		}
 	}
 

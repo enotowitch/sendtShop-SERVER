@@ -55,3 +55,17 @@ export const addUserIdOptional = async (req, res, next) => {
 	next()
 
 }
+
+export const addUserInfoOptional = async (req, res, next) => {
+
+	const token = req.headers.authorization
+
+	if (token) {
+		const decoded = jwt.verify(token, process.env.JWT)
+		const userId = decoded
+		const userInfo = await UserModel.find({ _id: userId })
+		req.userInfo = userInfo[0] // !!
+	}
+
+	next()
+}

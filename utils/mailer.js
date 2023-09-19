@@ -8,17 +8,17 @@ import nodemailer from "nodemailer"
 export default function mailer(email, Subject, html) {
 	// create reusable transporter object using the default SMTP transport 
 	var transporter = nodemailer.createTransport({
-		host: 'smtp.gmail.com',
-		port: '465',
-		auth: {
-			user: process.env.ADMIN_EMAIL,
-			pass: "erbptacurevioplg"
-		},
+		host: process.env.SMTP_HOST,
+		port: process.env.SMTP_PORT,
+		// secure: false, // try true
 		secureConnection: 'true',
+		auth: {
+			user: process.env.ADMIN_EMAIL, // email address
+			pass: process.env.SMTP_APP_PASS, // app password
+		},
 		tls: {
-			ciphers: 'SSLv3'
-		}
-
+			ciphers: 'SSLv3',
+		},
 	});
 
 	// setup e-mail data with unicode symbols 
