@@ -10,8 +10,7 @@ export default function mailer(email, Subject, html) {
 	var transporter = nodemailer.createTransport({
 		host: process.env.SMTP_HOST,
 		port: process.env.SMTP_PORT,
-		// secure: false, // try true
-		secureConnection: 'true',
+		secure: true,
 		auth: {
 			user: process.env.ADMIN_EMAIL, // email address
 			pass: process.env.SMTP_APP_PASS, // app password

@@ -62,29 +62,55 @@ app.post("/editFooter", OtherController.editFooter)
 // ?? ROUTES
 
 // ! MULTER
-import multer from 'multer'
-import fs, { existsSync, unlinkSync } from "fs"
+import multer from "multer"
+import fs, { existsSync } from "fs"
 
-const storage = multer.diskStorage({
-	"destination": (req, file, cb) => {
-		if (!existsSync("upload")) {
-			fs.mkdirSync("upload")
+// Create storage configurations for the productImages folder
+const storage1 = multer.diskStorage({
+	destination: (req, file, cb) => {
+		const folderPath = "upload/productImages"
+		if (!existsSync(folderPath)) {
+			fs.mkdirSync(folderPath, { recursive: true })
 		}
-		cb(null, "upload")
+		cb(null, folderPath)
 	},
-	"filename": (req, file, cb) => {
-		cb(null, file.originalname)
+	filename: (req, file, cb) => {
+		const uniqueFileName = `${file.originalname.split(".")[0]}${Date.now()}.${file.originalname.split(".").pop()}`
+		cb(null, uniqueFileName)
 	}
 })
 
-const upload = multer({ storage })
+// Create storage configurations for the userProductFiles folder
+const storage2 = multer.diskStorage({
+	destination: (req, file, cb) => {
+		const folderPath = "upload/userProductFiles"
+		if (!existsSync(folderPath)) {
+			fs.mkdirSync(folderPath, { recursive: true })
+		}
+		cb(null, folderPath)
+	},
+	filename: (req, file, cb) => {
+		const uniqueFileName = `${file.originalname.split(".")[0]}${Date.now()}.${file.originalname.split(".").pop()}`
+		cb(null, uniqueFileName)
+	}
+})
 
-app.post("/upload", upload.array("anyfile", 99), (req, res) => {
-	const fileArr = req.files?.map(file => `${process.env.SERVER_URL}/upload/${file.originalname}`)
+// Create Multer instances with the respective storage configurations
+const upload1 = multer({ storage: storage1 })
+const upload2 = multer({ storage: storage2 })
+
+app.post("/upload/productImages", upload1.array("anyfile", 99), (req, res) => {
+	const fileArr = req.files?.map((file) => `${process.env.SERVER_URL}/upload/productImages/${file.filename}`)
 	res.json({ fileArr })
 })
 
-app.use("/upload", express.static("upload"))
+app.post("/upload/userProductFiles", upload2.array("anyfile", 99), (req, res) => {
+	const fileArr = req.files?.map((file) => `${process.env.SERVER_URL}/upload/userProductFiles/${file.filename}`)
+	res.json({ fileArr })
+})
+
+app.use("/upload/productImages", express.static("upload/productImages"))
+app.use("/upload/userProductFiles", express.static("upload/userProductFiles"))
 
 // ! delete img
 app.post("/deleteImg", (req, res) => {

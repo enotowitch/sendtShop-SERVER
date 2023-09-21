@@ -109,19 +109,19 @@ export const filterPosts = async (req, res) => {
 	let skipStatusDeletedPosts = { "status": { $nin: ["deleted", "hidden"] } }
 
 	if (tag && !text) {
-		console.log(111)
+		// console.log(111)
 		filtered = await eval(type).find({ tags: tag, ...skipStatusDeletedPosts }).skip(skip).limit(12).sort({ [sortField]: sortType })
 	}
 	if (!tag && text) {
-		console.log(222)
+		// console.log(222)
 		filtered = await eval(type).find({ $or: [{ title: regExp }, { text: regExp }], ...skipStatusDeletedPosts }).skip(skip).limit(12).sort({ [sortField]: sortType })
 	}
 	if (tag && text) {
-		console.log(333)
+		// console.log(333)
 		filtered = await eval(type).find({ tags: tag, $or: [{ title: regExp }, { text: regExp }], ...skipStatusDeletedPosts }).skip(skip).limit(12).sort({ [sortField]: sortType })
 	}
 	if (!tag && !text) { // no search = return all posts
-		console.log(444)
+		// console.log(444)
 		filtered = await eval(type).find(skipStatusDeletedPosts).skip(skip).limit(12).sort({ [sortField]: sortType })
 	}
 
@@ -422,7 +422,7 @@ export const getActualUserCart = async (req, res) => {
 	cart?.map(cartProd => dbProds?.map(dbProd => {
 		if (cartProd._id === dbProd._id.toString()) {
 			cartProd.custom_field_names?.map(cartCustomFieldName => { // eg: color
-				if (cartProd?.[cartCustomFieldName].includes("{")) { // OBJECT: prevent parsing strings (only fullProdForm selects give obj with {name, price})
+				if (cartProd?.[cartCustomFieldName]?.includes("{")) { // OBJECT: prevent parsing strings (only fullProdForm selects give obj with {name, price})
 					const cartCustomFieldOptionName = JSON.parse(cartProd?.[cartCustomFieldName])?.name // eg: red
 					const dbCustomField = dbProd.custom_fields?.find(dbCustomField => dbCustomField?.name === cartCustomFieldName)
 					const dbCustomFieldOption = dbCustomField?.options?.find(dbCustomFieldOption => dbCustomFieldOption?.name === cartCustomFieldOptionName)
