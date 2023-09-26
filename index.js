@@ -51,6 +51,9 @@ import * as OrderController from "./controllers/OrderController.js"
 app.post("/create-checkout-session", OrderController.createStripePopup)
 app.post("/addOrder", addUserInfo, OrderController.addOrder)
 app.post("/orderSendEmailTrack", OrderController.orderSendEmailTrack)
+// ! shipStation
+app.get("/shipstation?action=export&start_date=01%2f23%2f2012+17%3a28&end_date=01%2f23%2f2012+17%3a33&page=1", OrderController.shipstation)
+// ? shipStation
 // ? order
 
 // ! other
